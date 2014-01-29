@@ -9,9 +9,13 @@ Author URI: http://pods.io/
 */
 
 /**
- * Setup default constants
+ * Setup default constants, add hooks
  */
 function pods_alternative_cache_init() {
+
+	register_activation_hook( __FILE__, 'pods_alternative_cache_activate' );
+	register_deactivation_hook( __FILE__, 'pods_alternative_cache_deactivate' );
+
 	if ( !defined( 'PODS_ALT_CACHE' ) ) {
 		define( 'PODS_ALT_CACHE', true );
 	}
@@ -23,27 +27,78 @@ function pods_alternative_cache_init() {
 	if ( !defined( 'PODS_ALT_FILE_CACHE_DIR' ) ) {
 		define( 'PODS_ALT_FILE_CACHE_DIR', WP_CONTENT_DIR . DIRECTORY_SEPARATOR . 'podscache' );
 	}
+
 }
 add_action( 'plugins_loaded', 'pods_alternative_cache_init' );
 
 /**
- * Setup DB cache table
+ * Activate plugin routine
  */
-function pods_alternative_cache_db_sql() {
+function pods_alternative_cache_activate( $network_wide = false, $type = null ) {
+
+	if ( empty( $type ) ) {
+		$type = PODS_ALT_CACHE_TYPE;
+	}
+
+	wp_cache_flush();
+
+	if ( 'file' == $type ) {
+		// Delete db cache if it existed
+		pods_alternative_cache_deactivate( false, 'db' );
+
+		pods_alternative_cache_file_clear();
+
+		if ( !@is_dir( PODS_ALT_FILE_CACHE_DIR ) ) {
+			if ( !@mkdir( PODS_ALT_FILE_CACHE_DIR, 0777 ) ) {
+				return false;
+			}
+		}
+	}
+	else {
+		// Delete file cache if it existed
+		pods_alternative_cache_deactivate( false, 'file' );
+
+		global $wpdb;
+
+		$wpdb->query( "DROP TABLE IF EXISTS `{$wpdb->prefix}podscache`" );
+
+		$wpdb->query( "
+			CREATE TABLE `{$wpdb->prefix}podscache` (
+				`cache_key` VARCHAR(255) NOT NULL,
+				`cache_value` LONGTEXT NOT NULL,
+				`expiration` INT(10) NOT NULL,
+				PRIMARY KEY (`cache_key`),
+				UNIQUE KEY `cache_key` (`cache_key`)
+			)
+		" );
+	}
+
+}
+
+/**
+ * Deactivate plugin routine
+ */
+function pods_alternative_cache_deactivate( $network_wide = false, $type = null ) {
+
+	if ( empty( $type ) ) {
+		$type = PODS_ALT_CACHE_TYPE;
+	}
 
 	global $wpdb;
 
-	$wpdb->query( "DROP TABLE IF EXISTS `{$wpdb->prefix}podscache`" );
+	wp_cache_flush();
 
-	$wpdb->query( "
-		CREATE TABLE `{$wpdb->prefix}podscache` (
-  			`cache_key` varchar(255) NOT NULL,
-  			`cache_value` longtext NOT NULL,
-  			`expiration` int(10) NOT NULL,
-  			PRIMARY KEY (`cache_key`),
-  			UNIQUE KEY `cache_key` (`cache_key`)
-		)
-	" );
+	if ( 'file' == $type ) {
+		pods_alternative_cache_file_clear();
+
+		if ( @is_dir( PODS_ALT_FILE_CACHE_DIR ) ) {
+			@rmdir( PODS_ALT_FILE_CACHE_DIR );
+		}
+	}
+	else {
+		$wpdb->query( "DROP TABLE IF EXISTS `{$wpdb->prefix}podscache`" );
+	}
+
 }
 
 /**
@@ -116,9 +171,7 @@ function pods_alternative_cache_file_set( $cache_key, $cache_value, $expires = 0
 	$path = PODS_ALT_FILE_CACHE_DIR . DIRECTORY_SEPARATOR . md5( $cache_key ) . '.php';
 
 	if ( !@is_dir( PODS_ALT_FILE_CACHE_DIR ) ) {
-		if ( !@mkdir( PODS_ALT_FILE_CACHE_DIR, 0777 ) ) {
-			return false;
-		}
+		return false;
 	}
 
 	if ( '' === $cache_value ) {
@@ -162,7 +215,20 @@ function pods_alternative_cache_file_set( $cache_key, $cache_value, $expires = 0
  */
 function pods_alternative_cache_file_clear() {
 
-	// @todo Clear path
+	// Check if directory exists
+	if ( !@is_dir( PODS_ALT_FILE_CACHE_DIR ) ) {
+		return false;
+	}
+
+	// Get files
+	$files = glob( PODS_ALT_FILE_CACHE_DIR . DIRECTORY_SEPARATOR . '*' );
+
+	// Delete files
+	foreach ( $files as $file ) {
+		if ( @is_file( $file ) ) {
+			@unlink( $file );
+		}
+	}
 
 	return true;
 
@@ -359,7 +425,7 @@ function pods_alternative_cache_set_check( $_false, $cache_mode, $cache_key, $or
 			pods_alternative_cache_file_set( $cache_key, $value, $expires );
 		}
 		else {
-			pods_alternative_cache_set( $cache_key, $value, $expires );
+			pods_alternative_cache_db_set( $cache_key, $value, $expires );
 		}
 
 		return true;
