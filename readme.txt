@@ -14,7 +14,7 @@ Pods Alternative Cache is an alternative caching engine for hosts that have limi
 
 Pods Alternative Cache offers File-based and DB-based caching.
 
-This plugin requires the [Pods Framework](http://wordpress.org/plugins/pods/) to run.
+This plugin requires the [Pods Framework](http://wordpress.org/plugins/pods/) version 2.3.19 or later to run.
 
 == Installation ==
 
