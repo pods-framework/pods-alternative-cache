@@ -10,6 +10,7 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 Pods Alternative Cache is an alternative caching engine for hosts that have limitations on object caching.
 
+
 == Description ==
 
 Pods Alternative Cache offers File-based and DB-based caching.
