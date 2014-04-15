@@ -10,7 +10,6 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 Pods Alternative Cache provides optimal performance with Pods sites on hosts with no object caching or low limits. Developed for and tested against the WPEngine platform to improve performance of cached objects generated from Pods
 
-
 == Description ==
 
 Pods Alternative Cache offers file-based, and databse-based caching.
