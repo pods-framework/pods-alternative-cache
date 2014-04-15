@@ -13,7 +13,7 @@ Pods Alternative Cache provides optimal performance with Pods sites on hosts wit
 
 == Description ==
 
-Pods Alternative Cache offers File-based and DB-based caching.
+Pods Alternative Cache offers file-based, and databse-based caching.
 
 This plugin requires the [Pods Framework](http://wordpress.org/plugins/pods/) version 2.4 or later to run.
 
@@ -31,6 +31,18 @@ OR you can just install it with WordPress by going to Plugins >> Add New >> and 
 Check out our GitHub for a list of contributors, or search our GitHub issues to see everyone involved in adding features, fixing bugs, or reporting issues/testing.
 
 [github.com/pods-framework/pods-alternative-cache/graphs/contributors](https://github.com/pods-framework/pods-alternative-cache/graphs/contributors)
+
+== FAQ ==
+
+= Which type of caching is used by default? =
+
+By default, file-based caching is used.
+
+= How can I switch to database-based caching? =
+
+In your wp-config.php add this line:
+
+define( 'PODS_ALT_CACHE_TYPE', 'db' );
 
 == Changelog ==
 
