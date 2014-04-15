@@ -3,7 +3,7 @@ Contributors: sc0ttkclark
 Donate link: http://podsfoundation.org/donate/
 Tags: pods, cache, wpengine
 Requires at least: 3.8
-Tested up to: 3.8.1
+Tested up to: 3.9
 Stable tag: 1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -34,6 +34,6 @@ Check out our GitHub for a list of contributors, or search our GitHub issues to 
 
 == Changelog ==
 
-= 1.0 - February 2014 =
+= 1.0 - April 16, 2014 =
 * First official release!
 * Found a bug? Have a great feature idea? Get on GitHub and tell us about it and we'll get right on it: [github.com/pods-framework/pods-seo/issues/new](https://github.com/pods-framework/pods-alternative-cache/issues/new)
