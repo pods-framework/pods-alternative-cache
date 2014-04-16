@@ -67,8 +67,9 @@ function pods_alternative_cache_activate( $network_wide = false, $type = null ) 
 				`cache_key` VARCHAR(255) NOT NULL,
 				`cache_value` LONGTEXT NOT NULL,
 				`expiration` INT(10) NOT NULL,
+				`blog_id` INT(10) NOT NULL,
 				PRIMARY KEY (`cache_key`),
-				UNIQUE KEY `cache_key` (`cache_key`)
+    			INDEX `cache_key_blog` (`cache_key`, `blog_id`)
 			)
 		" );
 	}
@@ -110,7 +111,9 @@ function pods_alternative_cache_deactivate( $network_wide = false, $type = null 
  */
 function pods_alternative_cache_file_get( $cache_key ) {
 
-	$path = PODS_ALT_FILE_CACHE_DIR . DIRECTORY_SEPARATOR . md5( $cache_key ) . '.php';
+	$current_blog_id = get_current_blog_id();
+
+	$path = PODS_ALT_FILE_CACHE_DIR . DIRECTORY_SEPARATOR . $current_blog_id . '-' . md5( $cache_key ) . '.php';
 
 	if ( !is_readable( $path ) ) {
 		return null;
@@ -168,7 +171,9 @@ function pods_alternative_cache_file_get( $cache_key ) {
  */
 function pods_alternative_cache_file_set( $cache_key, $cache_value, $expires = 0 ) {
 
-	$path = PODS_ALT_FILE_CACHE_DIR . DIRECTORY_SEPARATOR . md5( $cache_key ) . '.php';
+	$current_blog_id = get_current_blog_id();
+
+	$path = PODS_ALT_FILE_CACHE_DIR . DIRECTORY_SEPARATOR . $current_blog_id . '-' . md5( $cache_key ) . '.php';
 
 	if ( !@is_dir( PODS_ALT_FILE_CACHE_DIR ) ) {
 		return false;
@@ -195,7 +200,7 @@ function pods_alternative_cache_file_set( $cache_key, $cache_value, $expires = 0
 		$expires_at = 0;
 
 		if ( 0 < (int) $expires ) {
-        		$expires_at = time() + (int) $expires;
+			$expires_at = time() + (int) $expires;
 		}
 
 		@fputs( $fp, pack( 'L', $expires_at ) );
@@ -220,15 +225,15 @@ function pods_alternative_cache_file_clear() {
 		return false;
 	}
 
-	// Get files
-	$files = glob( PODS_ALT_FILE_CACHE_DIR . DIRECTORY_SEPARATOR . '*' );
+	if ( $dir = opendir( PODS_ALT_FILE_CACHE_DIR ) ) {
+        while ( false !== ( $file = readdir( $dir ) ) ) {
+			if ( @is_file( PODS_ALT_FILE_CACHE_DIR . DIRECTORY_SEPARATOR . $file ) ) {
+				@unlink( PODS_ALT_FILE_CACHE_DIR . DIRECTORY_SEPARATOR . $file );
+			}
+        }
 
-	// Delete files
-	foreach ( $files as $file ) {
-		if ( @is_file( $file ) ) {
-			@unlink( $file );
-		}
-	}
+        closedir( $dir );
+    }
 
 	return true;
 
@@ -243,13 +248,15 @@ function pods_alternative_cache_file_clear() {
  */
 function pods_alternative_cache_db_get( $cache_key ) {
 
+	$current_blog_id = get_current_blog_id();
+
 	global $wpdb;
 
 	$cache = $wpdb->get_row( $wpdb->prepare( "
 		SELECT `cache_value`, `expiration`
 		FROM `{$wpdb->prefix}podscache`
-		WHERE `cache_key` = %s LIMIT 1
-	", $cache_key ) );
+		WHERE `cache_key` = %s AND `blog_id` = %d LIMIT 1
+	", $cache_key, $current_blog_id ) );
 
 	$cache_value = null;
 
@@ -282,6 +289,8 @@ function pods_alternative_cache_db_get( $cache_key ) {
  */
 function pods_alternative_cache_db_set( $cache_key, $cache_value, $expires = 0 ) {
 
+	$current_blog_id = get_current_blog_id();
+
 	global $wpdb;
 
 	if ( '' === $cache_value ) {
@@ -293,9 +302,8 @@ function pods_alternative_cache_db_set( $cache_key, $cache_value, $expires = 0 )
 
 		$wpdb->query( $wpdb->prepare( "
 			DELETE FROM `{$wpdb->prefix}podscache`
-			WHERE `cache_key` = %s
-		", $cache_key ) );
-		$wpdb->query( "DELETE FROM `{$wpdb->prefix}podscache`" );
+			WHERE `cache_key` = %s AND `blog_id` = %d
+		", $cache_key, $current_blog_id ) );
 	}
 	else {
 		$cache_value = maybe_serialize( $cache_value );
@@ -308,8 +316,8 @@ function pods_alternative_cache_db_set( $cache_key, $cache_value, $expires = 0 )
 
 		$wpdb->query( $wpdb->prepare( "
 			REPLACE INTO `{$wpdb->prefix}podscache`
-			( `cache_key`, `cache_value`, `expiration` ) VALUES ( %s, %s, %d )
-		", $cache_key, $cache_value, $expires_at ) );
+			( `cache_key`, `cache_value`, `expiration`, `blog_id` ) VALUES ( %s, %s, %d, %d )
+		", $cache_key, $cache_value, $expires_at, $current_blog_id ) );
 	}
 
 	return true;
@@ -353,6 +361,10 @@ function pods_alternative_cache_get_check( $_false, $cache_mode, $cache_key, $or
 	global $pods_alternative_cache_last, $pods_alternative_cache_last_key;
 
 	if ( pods_alternative_cache_is_enabled( $cache_mode, $cache_key ) ) {
+		if ( current_user_can( 'manage_options' ) && isset( $_GET[ 'pods_debug_cache' ] ) && ( '1' === $_GET[ 'pods_debug_cache' ] || $cache_mode === $_GET[ 'pods_debug_cache' ] ) ) {
+			return true;
+		}
+
 		if ( 'file' == PODS_ALT_CACHE_TYPE ) {
 			$value = pods_alternative_cache_file_get( $cache_key );
 		}
@@ -389,6 +401,10 @@ function pods_alternative_cache_get_value( $value, $cache_mode, $cache_key, $ori
 	global $pods_alternative_cache_last, $pods_alternative_cache_last_key;
 
 	if ( pods_alternative_cache_is_enabled( $cache_mode, $cache_key ) ) {
+		if ( current_user_can( 'manage_options' ) && isset( $_GET[ 'pods_debug_cache' ] ) && ( '1' === $_GET[ 'pods_debug_cache' ] || $cache_mode === $_GET[ 'pods_debug_cache' ] ) ) {
+			return null;
+		}
+
 		if ( $pods_alternative_cache_last_key === $cache_key ) {
 			return $pods_alternative_cache_last;
 		}
@@ -430,7 +446,6 @@ function pods_alternative_cache_set_check( $_false, $cache_mode, $cache_key, $or
 
 		return true;
 	}
-
 
 	return $_false;
 
