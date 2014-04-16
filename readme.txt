@@ -16,6 +16,8 @@ Pods Alternative Cache offers file-based, and databse-based caching.
 
 This plugin requires the [Pods Framework](http://wordpress.org/plugins/pods/) version 2.4 or later to run.
 
+For more information on how to use this plugin, see [http://pods.io/2014/04/16/introducing-pods-alternative-cache/](http://pods.io/2014/04/16/introducing-pods-alternative-cache/).
+
 = Why an Alternative Cache? =
 
 Hosts like WPEngine have limits set on their object caching engine that are based on what they find optimal for their environment. Sometimes, plugins, themes, and even WordPress core can utilize object cache to the point where it gets too full. When that happens, certain caching engines like APC can remove objects from their cache and that can cause what appears to be random numbers of queries on each page load.
