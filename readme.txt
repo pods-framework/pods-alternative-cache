@@ -8,13 +8,19 @@ Stable tag: 1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Pods Alternative Cache provides optimal performance with Pods sites on hosts with no object caching or low limits. Developed for and tested against the WPEngine platform to improve performance of cached objects generated from Pods
+Pods Alternative Cache is a file-based or database-based caching solution for for hosts that have limitations on object caching. Pods Alternative Cache provides optimal performance with Pods sites on hosts with no object caching or low limits. It was developed for and tested against the WPEngine platform to improve performance of cached objects generated from Pods.
 
 == Description ==
 
 Pods Alternative Cache offers file-based, and databse-based caching.
 
 This plugin requires the [Pods Framework](http://wordpress.org/plugins/pods/) version 2.4 or later to run.
+
+= Why an Alternative Cache? =
+
+Hosts like WPEngine have limits set on their object caching engine that are based on what they find optimal for their environment. Sometimes, plugins, themes, and even WordPress core can utilize object cache to the point where it gets too full. When that happens, certain caching engines like APC can remove objects from their cache and that can cause what appears to be random numbers of queries on each page load.
+
+What Pods Alternative Cache does is store all of the Pods objects that need caching, separate from the default object caching engine. Depending on the environment or site, this may still not be optimal. You'll want to test things out and keep an eye on your site's performance to see if it's the right fit for you.
 
 == Installation ==
 
