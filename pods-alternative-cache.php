@@ -176,7 +176,9 @@ function pods_alternative_cache_file_set( $cache_key, $cache_value, $expires = 0
 	$path = PODS_ALT_FILE_CACHE_DIR . DIRECTORY_SEPARATOR . $current_blog_id . '-' . md5( $cache_key ) . '.php';
 
 	if ( !@is_dir( PODS_ALT_FILE_CACHE_DIR ) ) {
-		return false;
+		if ( !@mkdir( PODS_ALT_FILE_CACHE_DIR, 0777 ) ) {
+			return false;
+		}
 	}
 
 	if ( '' === $cache_value ) {
