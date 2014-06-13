@@ -55,4 +55,4 @@ define( 'PODS_ALT_CACHE_TYPE', 'db' );
 
 = 1.0 - April 16, 2014 =
 * First official release!
-* Found a bug? Have a great feature idea? Get on GitHub and tell us about it and we'll get right on it: [github.com/pods-framework/pods-seo/issues/new](https://github.com/pods-framework/pods-alternative-cache/issues/new)
+* Found a bug? Have a great feature idea? Get on GitHub and tell us about it and we'll get right on it: [github.com/pods-framework/pods-alternative-cache/issues/new](https://github.com/pods-framework/pods-alternative-cache/issues/new)
