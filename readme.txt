@@ -12,7 +12,7 @@ Pods Alternative Cache is a file-based or database-based caching solution for fo
 
 == Description ==
 
-Pods Alternative Cache offers file-based, and databse-based caching.
+Pods Alternative Cache offers file-based, and database-based caching.
 
 This plugin requires the [Pods Framework](http://wordpress.org/plugins/pods/) version 2.4 or later to run.
 
