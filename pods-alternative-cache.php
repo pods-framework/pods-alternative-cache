@@ -26,11 +26,11 @@ function pods_alternative_cache_init() {
 	 */
 	global $pods_alternative_cache;
 
-	if ( !defined( 'PODS_ALT_CACHE' ) ) {
+	if ( ! defined( 'PODS_ALT_CACHE' ) ) {
 		define( 'PODS_ALT_CACHE', true );
 	}
 
-	if ( !defined( 'PODS_ALT_CACHE_TYPE' ) ) {
+	if ( ! defined( 'PODS_ALT_CACHE_TYPE' ) ) {
 		define( 'PODS_ALT_CACHE_TYPE', 'file' );
 	}
 

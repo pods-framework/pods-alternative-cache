@@ -209,10 +209,10 @@ class Pods_Alternative_Cache {
 
 		$is_enabled = true;
 
-		if ( !PODS_ALT_CACHE ) {
+		if ( ! PODS_ALT_CACHE ) {
 			$is_enabled = false;
 		}
-		elseif ( !in_array( $cache_mode, $supported_modes ) ) {
+		elseif ( ! in_array( $cache_mode, $supported_modes ) ) {
 			$is_enabled = false;
 		}
 

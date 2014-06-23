@@ -30,8 +30,8 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 
 		$this->clear();
 
-		if ( !is_dir( PODS_ALT_FILE_CACHE_DIR ) ) {
-			if ( !mkdir( PODS_ALT_FILE_CACHE_DIR, 0775 ) ) {
+		if ( ! is_dir( PODS_ALT_FILE_CACHE_DIR ) ) {
+			if ( ! mkdir( PODS_ALT_FILE_CACHE_DIR, 0775 ) ) {
 				return false;
 			}
 		}
@@ -43,7 +43,7 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 	 *
 	 * @param boolean $network_wide Whether the action is network-wide
 	 */
-	public function deactivate( $network_wide = false, $type = null ) {
+	public function deactivate( $network_wide = false ) {
 
 		$this->clear();
 
@@ -83,7 +83,7 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 			$path .= DIRECTORY_SEPARATOR . substr( $md5, 7 ) . '.php';
 		}
 
-		if ( !is_readable( $path ) ) {
+		if ( ! is_readable( $path ) ) {
 			return null;
 		}
 
@@ -111,7 +111,7 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 			else {
 				$data = '';
 
-				while ( !feof( $fp ) ) {
+				while ( ! feof( $fp ) ) {
 					$data .= fread( $fp, 4096 );
 				}
 
@@ -165,7 +165,7 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 				return $this->clear();
 			}
 
-			if ( !file_exists( $path ) ) {
+			if ( ! file_exists( $path ) ) {
 				return false;
 			}
 
@@ -206,7 +206,7 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 	public function clear() {
 
 		// Check if directory exists
-		if ( !is_dir( PODS_ALT_FILE_CACHE_DIR ) ) {
+		if ( ! is_dir( PODS_ALT_FILE_CACHE_DIR ) ) {
 			return false;
 		}
 
@@ -240,7 +240,7 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 				foreach ( $directories as $directory ) {
 					$dir_path .= DIRECTORY_SEPARATOR . $directory;
 
-					if ( !is_dir( $dir_path ) && !mkdir( $dir_path, 0775 ) ) {
+					if ( ! is_dir( $dir_path ) && ! mkdir( $dir_path, 0775 ) ) {
 						$path = false;
 
 						break;
