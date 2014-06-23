@@ -3,8 +3,8 @@ Contributors: sc0ttkclark
 Donate link: http://podsfoundation.org/donate/
 Tags: pods, cache, wpengine
 Requires at least: 3.8
-Tested up to: 3.9
-Stable tag: 1.0
+Tested up to: 3.9.1
+Stable tag: 1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -17,12 +17,6 @@ Pods Alternative Cache offers file-based, and database-based caching.
 This plugin requires the [Pods Framework](http://wordpress.org/plugins/pods/) version 2.4 or later to run.
 
 For more information on how to use this plugin, see [http://pods.io/2014/04/16/introducing-pods-alternative-cache/](http://pods.io/2014/04/16/introducing-pods-alternative-cache/).
-
-= Why an Alternative Cache? =
-
-Hosts like WPEngine have limits set on their object caching engine that are based on what they find optimal for their environment. Sometimes, plugins, themes, and even WordPress core can utilize object cache to the point where it gets too full. When that happens, certain caching engines like APC can remove objects from their cache and that can cause what appears to be random numbers of queries on each page load.
-
-What Pods Alternative Cache does is store all of the Pods objects that need caching, separate from the default object caching engine. Depending on the environment or site, this may still not be optimal. You'll want to test things out and keep an eye on your site's performance to see if it's the right fit for you.
 
 == Installation ==
 
@@ -41,18 +35,35 @@ Check out our GitHub for a list of contributors, or search our GitHub issues to 
 
 == FAQ ==
 
-= Which type of caching is used by default? =
+= Why an Alternative Cache? =
 
-By default, file-based caching is used.
+Hosts like WPEngine have limits set on their object caching engine that are based on what they find optimal for their environment. Sometimes, plugins, themes, and even WordPress core can utilize object cache to the point where it gets too full. When that happens, certain caching engines like APC can remove objects from their cache and that can cause what appears to be random numbers of queries on each page load.
 
-= How can I switch to database-based caching? =
+What Pods Alternative Cache does is store all of the Pods objects that need caching, separate from the default object caching engine. Depending on the environment or site, this may still not be optimal. You'll want to test things out and keep an eye on your site's performance to see if it's the right fit for you.
 
-In your wp-config.php add this line:
+= What options are available? =
 
-define( 'PODS_ALT_CACHE_TYPE', 'db' );
+In your wp-config.php, or prior to the `plugins_loaded` action, you can define other constants to change how the plugin works.
+
+Change the storage type (be sure to deactivate/activate between storage type switches):
+
+`define( 'PODS_ALT_CACHE_TYPE', 'db' ); // Default is 'file'`
+
+Change the path to the File cache folder:
+
+`define( 'PODS_ALT_FILE_CACHE_DIR', 'path/to/folder' ); // Default is 'wp-content/podscache'`
+
+Disable Pods Alternative Cache:
+
+`define( 'PODS_ALT_CACHE', false ); // Default is true`
 
 == Changelog ==
 
-= 1.0 - April 16, 2014 =
-* First official release!
+= 1.1 - June 23rd, 2014 =
+* Refactored into a better OO pattern so the code is easier to use and extend
+* Added ability to create custom storage types through the `pods_alternative_cache_storage_types` filter, `return $storage_types;` where you've set `$storage_types[ 'your_type' ] = 'Your_Class';`
+* File storage now uses md5-based folder structure to avoid issues on sites with a large amount of cached objects to avoid having folders with too many files in them which could cause issues with certain hosts
 * Found a bug? Have a great feature idea? Get on GitHub and tell us about it and we'll get right on it: [github.com/pods-framework/pods-alternative-cache/issues/new](https://github.com/pods-framework/pods-alternative-cache/issues/new)
+
+= 1.0 - April 16th, 2014 =
+* First official release!
