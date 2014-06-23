@@ -7,7 +7,7 @@ class Pods_Alternative_Cache {
 	/**
 	 * Storage object in use
 	 *
-	 * @var Pods_Alternative_Cache_File|Pods_Alternative_Cache_DB
+	 * @var Pods_Alternative_Cache_Storage|Pods_Alternative_Cache_File|Pods_Alternative_Cache_DB
 	 */
 	public $storage;
 
@@ -21,7 +21,7 @@ class Pods_Alternative_Cache {
 		'db' => 'Pods_Alternative_Cache_DB'
 	);
 
-	public $last = '';
+	public $last     = '';
 	public $last_key = '';
 
 	/**
@@ -36,7 +36,7 @@ class Pods_Alternative_Cache {
 
 		$this->storage = $this->load_storage_type( $storage );
 
-		add_filter( 'pods_view_cache_alt_get', array( $this, 'get_check' ), 10, 5 );
+		add_filter( 'pods_view_cache_alt_get', array( $this, 'has_value' ), 10, 5 );
 		add_filter( 'pods_view_cache_alt_get_value', array( $this, 'get_value' ), 10, 5 );
 		add_filter( 'pods_view_cache_alt_set', array( $this, 'set_check' ), 10, 7 );
 
@@ -47,7 +47,7 @@ class Pods_Alternative_Cache {
 	 *
 	 * @param string $storage Storage type
 	 *
-	 * @return Pods_Alternative_Cache_Storage
+	 * @return Pods_Alternative_Cache_Storage|Pods_Alternative_Cache_File|Pods_Alternative_Cache_DB
 	 */
 	public function load_storage_type( $storage ) {
 
@@ -119,7 +119,7 @@ class Pods_Alternative_Cache {
 	 *
 	 * @return bool
 	 */
-	public function get_check( $_false, $cache_mode, $cache_key, $original_key, $group ) {
+	public function has_value( $_false, $cache_mode, $cache_key, $original_key, $group ) {
 
 		if ( ! $_false && $this->is_enabled( $cache_mode, $cache_key ) ) {
 			if ( current_user_can( 'manage_options' ) && isset( $_GET[ 'pods_debug_cache' ] ) && ( '1' === $_GET[ 'pods_debug_cache' ] || $cache_mode === $_GET[ 'pods_debug_cache' ] ) ) {
@@ -129,7 +129,7 @@ class Pods_Alternative_Cache {
 				$value = $this->storage->get_value( $cache_key, $group );
 
 				if ( null !== $value ) {
-					$this->last = $value;
+					$this->last     = $value;
 					$this->last_key = $cache_key;
 
 					$_false = true;

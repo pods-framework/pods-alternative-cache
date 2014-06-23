@@ -82,9 +82,9 @@ class Pods_Alternative_Cache_DB extends Pods_Alternative_Cache_Storage {
 	/**
 	 * Get the cache key with max char handling
 	 *
-	 * @param string $cache_key
+	 * @param string|boolean $cache_key
 	 *
-	 * @return string
+	 * @return string|boolean
 	 */
 	public function cache_key_limited( $cache_key ) {
 
@@ -100,7 +100,7 @@ class Pods_Alternative_Cache_DB extends Pods_Alternative_Cache_Storage {
 	/**
 	 * Get cached value from DB cache
 	 *
-	 * @param string $cache_key
+	 * @param string|boolean $cache_key
 	 * @param string $group
 	 *
 	 * @return mixed|null
@@ -117,12 +117,14 @@ class Pods_Alternative_Cache_DB extends Pods_Alternative_Cache_Storage {
 
 		$table = $this->table();
 
-		$cache = $wpdb->get_row( $wpdb->prepare( "
+		$sql = "
 			SELECT `cache_value`, `expiration`
 			FROM `{$table}`
 			WHERE `cache_key` = %s AND `cache_group` = %s
 			LIMIT 1
-		", $cache_key, $group ) );
+		";
+
+		$cache = $wpdb->get_row( $wpdb->prepare( $sql, $cache_key, $group ) );
 
 		$cache_value = null;
 
@@ -171,10 +173,12 @@ class Pods_Alternative_Cache_DB extends Pods_Alternative_Cache_Storage {
 				return $this->clear();
 			}
 
-			$wpdb->query( $wpdb->prepare( "
+			$sql = "
 				DELETE FROM `{$table}`
 				WHERE `cache_key` = %s AND `cache_group` = %s
-			", $cache_key, $group ) );
+			";
+
+			$wpdb->query( $wpdb->prepare( $sql, $cache_key, $group ) );
 		}
 		else {
 			$cache_value = maybe_serialize( $cache_value );
@@ -185,11 +189,13 @@ class Pods_Alternative_Cache_DB extends Pods_Alternative_Cache_Storage {
 				$expires_at = time() + (int) $expires;
 			}
 
-			$wpdb->query( $wpdb->prepare( "
+			$sql = "
 				REPLACE INTO `{$table}`
 				( `cache_key`, `cache_group`, `cache_value`, `expiration` )
 				VALUES ( %s, %s, %s, %d, %d )
-			", $cache_key, $group, $cache_value, $expires_at ) );
+			";
+
+			$wpdb->query( $wpdb->prepare( $sql, $cache_key, $group, $cache_value, $expires_at ) );
 		}
 
 		return true;

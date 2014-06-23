@@ -89,7 +89,7 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 
 		$fp = fopen( $path, 'rb' );
 
-		if ( !$fp ) {
+		if ( ! $fp ) {
 			return null;
 		}
 
@@ -119,7 +119,6 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 
 				$data_unserialized = @unserialize( $data );
 			}
-
 		}
 
 		fclose( $fp );
@@ -180,10 +179,14 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 
 			$fp = fopen( $path, 'w' );
 
-			if ( !$fp ) {
+			if ( ! $fp ) {
 				$written = file_put_contents( $path, pack( 'L', $expires_at ) . PHP_EOL . '<?php exit; ?>' . PHP_EOL . @serialize( $cache_value ), LOCK_EX );
 
 				if ( ! $fp && ! $written ) {
+					if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+						echo '<!--' . __CLASS__ . ': File cannot be written (' . $path . ')-->';
+					}
+
 					return false;
 				}
 			}
@@ -192,6 +195,10 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 			fputs( $fp, '<?php exit; ?>' );
 			fputs( $fp, @serialize( $cache_value ) );
 			fclose( $fp );
+
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				echo '<!--' . __CLASS__ . ': File written (' . $path . ')-->';
+			}
 		}
 
 		return true;
@@ -223,7 +230,7 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 	 * @param string $file File path
 	 * @param bool $mkdir Whether to attempt to create the directory
 	 *
-	 * @return string|bool The path, false if the path couldn't be created
+	 * @return string|false The path, false if the path couldn't be created
 	 */
 	public function get_path_for_file( $file, $mkdir = false ) {
 
@@ -259,7 +266,7 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 	/**
 	 * Delete all files in a directory
 	 *
-	 * @param string $directory
+	 * @param string|null $directory
 	 */
 	public function delete_files_in_directory( $directory = null ) {
 
