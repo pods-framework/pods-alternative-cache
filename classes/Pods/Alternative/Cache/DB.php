@@ -149,7 +149,7 @@ class Pods_Alternative_Cache_DB extends Pods_Alternative_Cache_Storage {
 	/**
 	 * Set cached value in DB cache
 	 *
-	 * @param string $cache_key
+	 * @param string|boolean $cache_key
 	 * @param mixed $cache_value
 	 * @param int $expires
 	 * @param string $group
