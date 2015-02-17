@@ -4,7 +4,7 @@ Donate link: http://podsfoundation.org/donate/
 Tags: pods, cache, wpengine
 Requires at least: 3.8
 Tested up to: 3.9.1
-Stable tag: 1.1
+Stable tag: 1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ Pods Alternative Cache is a file-based or database-based caching solution for fo
 
 == Description ==
 
-Pods Alternative Cache offers file-based, and database-based caching.
+Pods Alternative Cache offers file-based, database-based and memcached-based caching.
 
 This plugin requires the [Pods Framework](http://wordpress.org/plugins/pods/) version 2.4 or later to run.
 
@@ -47,17 +47,28 @@ In your wp-config.php, or prior to the `plugins_loaded` action, you can define o
 
 Change the storage type (be sure to deactivate/activate between storage type switches):
 
-`define( 'PODS_ALT_CACHE_TYPE', 'db' ); // Default is 'file'`
+`define( 'PODS_ALT_CACHE_TYPE', 'db' ); // Default is 'file', you can choose 'memcached' too`
 
 Change the path to the File cache folder:
 
 `define( 'PODS_ALT_FILE_CACHE_DIR', 'path/to/folder' ); // Default is 'wp-content/podscache'`
+
+Set MemCached Server host or IP address
+
+`define( 'PODS_ALT_CACHE_MEMCACHED_SERVER', '127.0.0.1' ); // Default is 'localhost'`
+
+Set MemCached Server PORT number
+
+`define( 'PODS_ALT_CACHE_MEMCACHED_PORT', '11211' ); // Default is '11211'`
 
 Disable Pods Alternative Cache:
 
 `define( 'PODS_ALT_CACHE', false ); // Default is true`
 
 == Changelog ==
+
+= 1.2 - February 17th, 2015
+* Added memcached support 
 
 = 1.1 - June 23rd, 2014 =
 * Refactored into a better OO pattern so the code is easier to use and extend
