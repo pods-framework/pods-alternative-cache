@@ -3,7 +3,7 @@
     "description": "File-based or database-based caching solution for for hosts that have limitations on object caching.",
     "type": "wordpress-plugin",
     "keywords": ["pods", "wordpress", "cache", "wpengine"],
-    "homepage": "https://github.com/shaer/pods-alternative-cache",
+    "homepage": "https://github.com/pods-framework/pods-alternative-cache",
     "require": {
         "php": ">=5.3"
     },
