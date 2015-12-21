@@ -3,7 +3,7 @@ Contributors: sc0ttkclark
 Donate link: http://podsfoundation.org/donate/
 Tags: pods, cache, wpengine
 Requires at least: 3.8
-Tested up to: 3.9.1
+Tested up to: 4.4
 Stable tag: 1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -67,8 +67,8 @@ Disable Pods Alternative Cache:
 
 == Changelog ==
 
-= 1.2 - February 17th, 2015
-* Added memcached support 
+= 1.2 - XXXX, xxth, 2016 =
+* Added support for a Memcache caching (props @shaer)
 
 = 1.1 - June 23rd, 2014 =
 * Refactored into a better OO pattern so the code is easier to use and extend
