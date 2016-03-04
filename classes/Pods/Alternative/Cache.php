@@ -18,7 +18,8 @@ class Pods_Alternative_Cache {
 	 */
 	public static $storage_types = array(
 		'file' => 'Pods_Alternative_Cache_File',
-		'db' => 'Pods_Alternative_Cache_DB'
+		'db' => 'Pods_Alternative_Cache_DB',
+		'memcached' => 'Pods_Alternative_Cache_Memcached',
 	);
 
 	public $last     = '';

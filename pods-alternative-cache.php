@@ -39,6 +39,8 @@ function pods_alternative_cache_init() {
 
 	if ( 'db' == PODS_ALT_CACHE_TYPE ) {
 		$pods_alternative_cache = new Pods_Alternative_Cache( 'db' );
+	} else if ( 'memcached' == PODS_ALT_CACHE_TYPE ) {
+		$pods_alternative_cache = new Pods_Alternative_Cache( 'memcached' );
 	}
 	else {
 		$pods_alternative_cache = new Pods_Alternative_Cache( 'file' );

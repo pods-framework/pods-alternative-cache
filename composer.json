@@ -19,6 +19,11 @@
             "name": "Pods Framework Team",
             "email": "contact@pods.io",
             "homepage": "http://pods.io/"
+        },
+        {
+            "name": "Mohamed El-Shaer",
+            "email": "mohamed@shaer.me",
+            "homepage": "http://shaer.me/"
         }
     ],
     "support": {
