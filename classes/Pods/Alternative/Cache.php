@@ -17,12 +17,12 @@ class Pods_Alternative_Cache {
 	 * @var array
 	 */
 	public static $storage_types = array(
-		'file' => 'Pods_Alternative_Cache_File',
-		'db' => 'Pods_Alternative_Cache_DB',
+		'file'      => 'Pods_Alternative_Cache_File',
+		'db'        => 'Pods_Alternative_Cache_DB',
 		'memcached' => 'Pods_Alternative_Cache_Memcached',
 	);
 
-	public $last     = '';
+	public $last = '';
 	public $last_key = '';
 
 	/**
@@ -112,7 +112,7 @@ class Pods_Alternative_Cache {
 	/**
 	 * Check if there's a cache value to get
 	 *
-	 * @param bool $_false
+	 * @param bool   $_false
 	 * @param string $cache_mode
 	 * @param string $cache_key
 	 * @param string $original_key
@@ -123,10 +123,9 @@ class Pods_Alternative_Cache {
 	public function has_value( $_false, $cache_mode, $cache_key, $original_key, $group ) {
 
 		if ( ! $_false && $this->is_enabled( $cache_mode, $cache_key ) ) {
-			if ( current_user_can( 'manage_options' ) && isset( $_GET[ 'pods_debug_cache' ] ) && ( '1' === $_GET[ 'pods_debug_cache' ] || $cache_mode === $_GET[ 'pods_debug_cache' ] ) ) {
+			if ( current_user_can( 'manage_options' ) && isset( $_GET['pods_debug_cache'] ) && ( '1' === $_GET['pods_debug_cache'] || $cache_mode === $_GET['pods_debug_cache'] ) ) {
 				$_false = true;
-			}
-			else {
+			} else {
 				$value = $this->storage->get_value( $cache_key, $group );
 
 				if ( null !== $value ) {
@@ -145,7 +144,7 @@ class Pods_Alternative_Cache {
 	/**
 	 * Return cached value
 	 *
-	 * @param mixed $value
+	 * @param mixed  $value
 	 * @param string $cache_mode
 	 * @param string $cache_key
 	 * @param string $original_key
@@ -156,13 +155,11 @@ class Pods_Alternative_Cache {
 	public function get_value( $value, $cache_mode, $cache_key, $original_key, $group ) {
 
 		if ( $this->is_enabled( $cache_mode, $cache_key ) ) {
-			if ( current_user_can( 'manage_options' ) && isset( $_GET[ 'pods_debug_cache' ] ) && ( '1' === $_GET[ 'pods_debug_cache' ] || $cache_mode === $_GET[ 'pods_debug_cache' ] ) ) {
+			if ( current_user_can( 'manage_options' ) && isset( $_GET['pods_debug_cache'] ) && ( '1' === $_GET['pods_debug_cache'] || $cache_mode === $_GET['pods_debug_cache'] ) ) {
 				$value = null;
-			}
-			elseif ( $this->last_key === $cache_key ) {
+			} elseif ( $this->last_key === $cache_key ) {
 				$value = $this->last;
-			}
-			else {
+			} else {
 				$value = $this->storage->get_value( $cache_key, $group );
 			}
 		}
@@ -174,12 +171,12 @@ class Pods_Alternative_Cache {
 	/**
 	 * Set a cached value
 	 *
-	 * @param bool $_false
+	 * @param bool   $_false
 	 * @param string $cache_mode
 	 * @param string $cache_key
 	 * @param string $original_key
-	 * @param mixed $value
-	 * @param int $expires
+	 * @param mixed  $value
+	 * @param int    $expires
 	 * @param string $group
 	 *
 	 * @return bool
@@ -212,8 +209,7 @@ class Pods_Alternative_Cache {
 
 		if ( ! PODS_ALT_CACHE ) {
 			$is_enabled = false;
-		}
-		elseif ( ! in_array( $cache_mode, $supported_modes ) ) {
+		} elseif ( ! in_array( $cache_mode, $supported_modes ) ) {
 			$is_enabled = false;
 		}
 

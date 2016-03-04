@@ -69,6 +69,8 @@ Disable Pods Alternative Cache:
 
 = 1.2 - XXXX, xxth, 2016 =
 * Added support for a Memcache caching (props @shaer)
+* Added support for WP_Filesystem usage instead of using PHP directly
+* Added additional WPEngine compatibility
 
 = 1.1 - June 23rd, 2014 =
 * Refactored into a better OO pattern so the code is easier to use and extend

@@ -35,7 +35,7 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 
 		$this->clear();
 
-		require_once(ABSPATH . 'wp-admin/includes/file.php');
+		require_once( ABSPATH . 'wp-admin/includes/file.php' );
 
 		/**
 		 * @var $wp_filesystem WP_Filesystem_Base
@@ -46,8 +46,7 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 
 		if ( ! $wp_filesystem ) {
 			return false;
-		}
-		elseif ( ! $wp_filesystem->is_dir( PODS_ALT_FILE_CACHE_DIR ) ) {
+		} elseif ( ! $wp_filesystem->is_dir( PODS_ALT_FILE_CACHE_DIR ) ) {
 			if ( ! $wp_filesystem->mkdir( PODS_ALT_FILE_CACHE_DIR, FS_CHMOD_DIR ) ) {
 				return false;
 			}
@@ -66,7 +65,7 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 
 		$this->clear();
 
-		require_once(ABSPATH . 'wp-admin/includes/file.php');
+		require_once( ABSPATH . 'wp-admin/includes/file.php' );
 
 		/**
 		 * @var $wp_filesystem WP_Filesystem_Base
@@ -77,8 +76,7 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 
 		if ( ! $wp_filesystem ) {
 			return false;
-		}
-		elseif ( $wp_filesystem->is_dir( PODS_ALT_FILE_CACHE_DIR ) ) {
+		} elseif ( $wp_filesystem->is_dir( PODS_ALT_FILE_CACHE_DIR ) ) {
 			$wp_filesystem->rmdir( PODS_ALT_FILE_CACHE_DIR );
 		}
 
@@ -115,6 +113,19 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 	 */
 	public function get_value( $cache_key, $group = '' ) {
 
+		require_once( ABSPATH . 'wp-admin/includes/file.php' );
+
+		/**
+		 * @var $wp_filesystem WP_Filesystem_Base
+		 */
+		global $wp_filesystem;
+
+		WP_Filesystem();
+
+		if ( ! $wp_filesystem ) {
+			return false;
+		}
+
 		$current_blog_id = (string) get_current_blog_id();
 
 		// Force 0000123 format (like W3TC)
@@ -131,18 +142,11 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 
 		if ( ! $path ) {
 			return null;
-		}
-		else {
+		} else {
 			$path .= DIRECTORY_SEPARATOR . $md5_file;
 		}
 
-		if ( ! is_readable( $path ) ) {
-			return null;
-		}
-
-		$fp = fopen( $path, 'rb' );
-
-		if ( ! $fp ) {
+		if ( ! $wp_filesystem->is_readable( $path ) ) {
 			return null;
 		}
 
@@ -150,7 +154,11 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 			echo '<!--' . __CLASS__ . ': File read (' . $path . ')-->' . "\n";
 		}
 
-		$expires_at = fread( $fp, 4 );
+		// @todo Figure out how to use WP_Filesystem to do fread() on limited byte range
+
+		$contents = $wp_filesystem->get_contents( $path );
+
+		$expires_at = substr( $contents, 0, 4 );
 
 		$data_unserialized = null;
 
@@ -164,29 +172,18 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 			//var_dump( array( 'read_key' => $cache_key, 'read_group' => $group, 'read_expires' => $expires_at, 'read_time' => time() ) );
 
 			if ( 0 < (int) $expires_at && (int) $expires_at < time() ) {
-				fclose( $fp );
-
 				// Data has expired, delete it
 				$this->set_value( $cache_key, '' );
 
 				return $data_unserialized;
-			}
-			else {
-				$data = '';
-
-				while ( ! feof( $fp ) ) {
-					$data .= fread( $fp, 4096 );
-				}
-
-				$data = substr( $data, 16 );
+			} else {
+				$data = substr( $contents, 20 );
 
 				$data_unserialized = maybe_unserialize( $data );
 
 				//var_dump( array( 'read_data' => $data_unserialized ) );
 			}
 		}
-
-		fclose( $fp );
 
 		return $data_unserialized;
 
@@ -196,13 +193,26 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 	 * Set cached value in file cache
 	 *
 	 * @param string|boolean $cache_key
-	 * @param mixed $cache_value
-	 * @param int $expires
-	 * @param string $group
+	 * @param mixed          $cache_value
+	 * @param int            $expires
+	 * @param string         $group
 	 *
 	 * @return bool
 	 */
 	public function set_value( $cache_key, $cache_value, $expires = 0, $group = '' ) {
+
+		require_once( ABSPATH . 'wp-admin/includes/file.php' );
+
+		/**
+		 * @var $wp_filesystem WP_Filesystem_Base
+		 */
+		global $wp_filesystem;
+
+		WP_Filesystem();
+
+		if ( ! $wp_filesystem ) {
+			return false;
+		}
 
 		$current_blog_id = (string) get_current_blog_id();
 
@@ -220,22 +230,8 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 
 		if ( ! $path ) {
 			return false;
-		}
-		else {
+		} else {
 			$path .= DIRECTORY_SEPARATOR . $md5_file;
-		}
-
-		require_once(ABSPATH . 'wp-admin/includes/file.php');
-
-		/**
-		 * @var $wp_filesystem WP_Filesystem_Base
-		 */
-		global $wp_filesystem;
-
-		WP_Filesystem();
-
-		if ( ! $wp_filesystem ) {
-			return false;
 		}
 
 		if ( '' === $cache_value ) {
@@ -243,13 +239,12 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 				return $this->clear();
 			}
 
-			if ( ! file_exists( $path ) ) {
+			if ( ! $wp_filesystem->is_file( $path ) ) {
 				return false;
 			}
 
 			return $wp_filesystem->delete( $path );
-		}
-		else {
+		} else {
 			$expires_at = 0;
 
 			if ( 0 < (int) $expires ) {
@@ -289,7 +284,7 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 	 */
 	public function clear() {
 
-		require_once(ABSPATH . 'wp-admin/includes/file.php');
+		require_once( ABSPATH . 'wp-admin/includes/file.php' );
 
 		/**
 		 * @var $wp_filesystem WP_Filesystem_Base
@@ -300,8 +295,7 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 
 		if ( ! $wp_filesystem ) {
 			return false;
-		}
-		// Check if directory exists
+		} // Check if directory exists
 		elseif ( ! $wp_filesystem->is_dir( PODS_ALT_FILE_CACHE_DIR ) ) {
 			return false;
 		}
@@ -316,8 +310,8 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 	/**
 	 * Get the path to the cache directory for the file, attempt to create if it doesn't exist
 	 *
-	 * @param string $file File path
-	 * @param bool $mkdir Whether to attempt to create the directory
+	 * @param string $file  File path
+	 * @param bool   $mkdir Whether to attempt to create the directory
 	 *
 	 * @return string|false The path, false if the path couldn't be created
 	 */
@@ -325,7 +319,7 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 
 		$path = PODS_ALT_FILE_CACHE_DIR . DIRECTORY_SEPARATOR . trim( $file, DIRECTORY_SEPARATOR );
 
-		require_once(ABSPATH . 'wp-admin/includes/file.php');
+		require_once( ABSPATH . 'wp-admin/includes/file.php' );
 
 		/**
 		 * @var $wp_filesystem WP_Filesystem_Base
@@ -353,8 +347,7 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 						break;
 					}
 				}
-			}
-			else {
+			} else {
 				$path = false;
 			}
 		}
@@ -374,7 +367,7 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 			$directory = PODS_ALT_FILE_CACHE_DIR;
 		}
 
-		require_once(ABSPATH . 'wp-admin/includes/file.php');
+		require_once( ABSPATH . 'wp-admin/includes/file.php' );
 
 		/**
 		 * @var $wp_filesystem WP_Filesystem_Base
@@ -383,29 +376,28 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 
 		WP_Filesystem();
 
-		if ( ! $wp_filesystem ) {
-			return false;
-		} elseif ( $dir = opendir( $directory ) ) {
-			while ( false !== ( $file = readdir( $dir ) ) ) {
-				if ( in_array( $file, array( '.', '..' ) ) ) {
-					continue;
-				}
+		if ( ! $wp_filesystem || ! $wp_filesystem->is_dir( $directory ) ) {
+			return;
+		}
 
-				$file_path = $directory . DIRECTORY_SEPARATOR . $file;
+		$file_list = $wp_filesystem->dirlist( $directory, false );
 
-				if ( $wp_filesystem->is_file( $file_path ) ) {
-					$wp_filesystem->delete( $file_path );
-				}
-				elseif ( $wp_filesystem->is_dir( $file_path ) ) {
-					$this->delete_files_in_directory( $file_path );
-				}
+		foreach ( $file_list as $file ) {
+
+			$file_path = $directory . DIRECTORY_SEPARATOR . $file['name'];
+
+			if ( 'f' == $file['type'] ) {
+				// Delete folder
+				$this->delete_files_in_directory( $file_path );
+			} else {
+				// Delete file
+				$wp_filesystem->delete( $file_path );
 			}
-
-			closedir( $dir );
 
 			if ( PODS_ALT_FILE_CACHE_DIR !== $directory ) {
 				$wp_filesystem->rmdir( $directory );
 			}
+
 		}
 
 	}

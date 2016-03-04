@@ -27,7 +27,8 @@ class Pods_Alternative_Cache_DB extends Pods_Alternative_Cache_Storage {
 
 		$table = $this->table();
 
-		$tables = array( "
+		$tables = array(
+			"
 			CREATE TABLE `{$table}` (
 				`cache_key` VARCHAR(255) NOT NULL,
 				`cache_group` VARCHAR(255) NOT NULL,
@@ -36,7 +37,8 @@ class Pods_Alternative_Cache_DB extends Pods_Alternative_Cache_Storage {
 				PRIMARY KEY (`cache_key`),
 				UNIQUE INDEX `cache_key_group` (`cache_key`, `cache_group`)
 			)
-		" );
+		"
+		);
 
 		// Create / alter table handling
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
@@ -101,7 +103,7 @@ class Pods_Alternative_Cache_DB extends Pods_Alternative_Cache_Storage {
 	 * Get cached value from DB cache
 	 *
 	 * @param string|boolean $cache_key
-	 * @param string $group
+	 * @param string         $group
 	 *
 	 * @return mixed|null
 	 */
@@ -133,12 +135,10 @@ class Pods_Alternative_Cache_DB extends Pods_Alternative_Cache_Storage {
 
 			if ( 0 < $cache->expiration && $cache->expiration < time() ) {
 				$this->set_value( $cache_key, '', 0, $group );
-			}
-			else {
+			} else {
 				$cache_value = maybe_unserialize( $cache_value );
 			}
-		}
-		elseif ( '' !== $cache ) {
+		} elseif ( '' !== $cache ) {
 			$cache_value = $cache;
 		}
 
@@ -150,9 +150,9 @@ class Pods_Alternative_Cache_DB extends Pods_Alternative_Cache_Storage {
 	 * Set cached value in DB cache
 	 *
 	 * @param string|boolean $cache_key
-	 * @param mixed $cache_value
-	 * @param int $expires
-	 * @param string $group
+	 * @param mixed          $cache_value
+	 * @param int            $expires
+	 * @param string         $group
 	 *
 	 * @return bool
 	 */
@@ -179,8 +179,7 @@ class Pods_Alternative_Cache_DB extends Pods_Alternative_Cache_Storage {
 			";
 
 			$wpdb->query( $wpdb->prepare( $sql, $cache_key, $group ) );
-		}
-		else {
+		} else {
 			$cache_value = maybe_serialize( $cache_value );
 
 			$expires_at = 0;
