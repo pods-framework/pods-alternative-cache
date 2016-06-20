@@ -162,7 +162,7 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 
 		$data_unserialized = null;
 
-		if ( false !== $expires_at ) {
+		if ( false !== $expires_at && ! empty( $expires_at ) ) {
 			$expires_at = unpack( 'L', $expires_at );
 			$expires_at = (int) $expires_at[1];
 
