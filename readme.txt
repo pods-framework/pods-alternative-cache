@@ -4,7 +4,7 @@ Donate link: http://podsfoundation.org/donate/
 Tags: pods, cache, wpengine
 Requires at least: 3.8
 Tested up to: 4.5
-Stable tag: 1.2
+Stable tag: 2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -67,12 +67,10 @@ Disable Pods Alternative Cache:
 
 == Changelog ==
 
-= 1.2 - XXXX, xxth, 2016 =
+= 2.0 - June 23rd, 2016 =
 * Added support for a Memcache caching (props @shaer)
 * Added support for WP_Filesystem usage instead of using PHP directly
 * Added additional WPEngine compatibility
-
-= 1.1 - June 23rd, 2014 =
 * Refactored into a better OO pattern so the code is easier to use and extend
 * Added ability to create custom storage types through the `pods_alternative_cache_storage_types` filter, `return $storage_types;` where you've set `$storage_types[ 'your_type' ] = 'Your_Class';`
 * File storage now uses md5-based folder structure to avoid issues on sites with a large amount of cached objects to avoid having folders with too many files in them which could cause issues with certain hosts
