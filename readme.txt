@@ -8,7 +8,7 @@ Stable tag: 2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Pods Alternative Cache is a file-based or database-based caching solution for for hosts that have limitations on object caching.
+Pods Alternative Cache is a file-based or database-based caching solution for hosts that have limitations on object caching.
 
 == Description ==
 
