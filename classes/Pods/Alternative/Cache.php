@@ -201,7 +201,10 @@ class Pods_Alternative_Cache {
 	 */
 	public function is_enabled( $cache_mode, $cache_key ) {
 
-		$supported_modes = array( 'transient', 'cache' );
+		$supported_modes = array(
+			'transient',
+			'cache',
+		);
 
 		$supported_modes = apply_filters( 'pods_alternative_cache_supported_modes', $supported_modes, $cache_mode, $cache_key );
 
