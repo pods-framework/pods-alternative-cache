@@ -4,9 +4,6 @@
     "type": "wordpress-plugin",
     "keywords": ["pods", "wordpress", "cache", "wpengine"],
     "homepage": "https://github.com/pods-framework/pods-alternative-cache",
-    "require": {
-        "php": ">=5.3"
-    },
     "license": "GPL-2.0",
     "authors": [
         {
@@ -31,6 +28,7 @@
         "source": "https://github.com/pods-framework/pods-alternative-cache"
     },
     "require": {
+        "php": ">=5.3",
         "composer/installers": "~1.0",
         "wpackagist-plugin/pods": ">=2.4"
     }
