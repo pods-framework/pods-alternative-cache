@@ -94,8 +94,11 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 
 			$cookie_value = md5( 'wpe_auth_salty_dog|' . WPE_APIKEY );
 
-			if ( ! isset( $_COOKIE[ $wpe_cookie ] ) || $_COOKIE[ $wpe_cookie ] != $cookie_value ) {
-				setcookie( $wpe_cookie, $cookie_value, 0, '/' );
+			if ( empty( $_COOKIE[ $wpe_cookie ] ) || $_COOKIE[ $wpe_cookie ] != $cookie_value ) {
+				$expire = 2 * DAY_IN_SECONDS;
+				$expire += time();
+
+				setcookie( $wpe_cookie, $cookie_value, $expire, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
 			}
 
 			self::$wpe_compatible = true;
