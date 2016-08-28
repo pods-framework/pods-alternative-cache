@@ -159,7 +159,7 @@ class Pods_Alternative_Cache_Memcached extends Pods_Alternative_Cache_Storage {
 
 		$port = 11211;
 
-		if ( defined( 'PODS_ALT_CACHE_MEMCACHED_PORT' ) && PODS_ALT_CACHE_MEMCACHED_PORT ) {
+		if ( defined( 'PODS_ALT_CACHE_MEMCACHED_PORT' ) && PODS_ALT_CACHE_MEMCACHED_PORT && is_integer(PODS_ALT_CACHE_MEMCACHED_PORT) ) {
 			$port = PODS_ALT_CACHE_MEMCACHED_PORT;
 		}
 
