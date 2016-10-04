@@ -48,6 +48,7 @@ function pods_alternative_cache_init() {
 	register_deactivation_hook( __FILE__, array( $pods_alternative_cache, 'deactivate' ) );
 
 }
+
 add_action( 'plugins_loaded', 'pods_alternative_cache_init' );
 
 /**
@@ -60,104 +61,131 @@ function pods_alternative_cache_test_anon() {
 
 		$rand = (int) time();
 
-		$cache_key = 'pods-alt-cache-test';
+		$persist_check = '';
+
+		if ( ! empty( $_GET['altcache_debug_check'] ) ) {
+			$persist_check = $_GET['altcache_debug_check'];
+		}
+
+		$cache_key   = 'pods-alt-cache-test';
 		$cache_group = 'pods-alt-cache';
 
+		$cache_persist_key = 'pods-alt-cache-persist';
+
 		$stats = array(
-			'rand'               => $rand,
-			'pods-alt-cache'     => array(
-				'before_set' => null,
-				'set'        => null,
-				'after_set'  => null,
-				'pass'       => false,
+			'rand'           => $rand,
+			'non-persistent' => array(
+				'pods-alt-cache'     => array(
+					'before_set' => null,
+					'set'        => null,
+					'after_set'  => null,
+					'pass'       => false,
+				),
+				'wp-object-cache'    => array(
+					'before_set' => null,
+					'set'        => null,
+					'after_set'  => null,
+					'pass'       => false,
+				),
+				'wp-transient-cache' => array(
+					'before_set' => null,
+					'set'        => null,
+					'after_set'  => null,
+					'pass'       => false,
+				),
 			),
-			'wp-object-cache'    => array(
-				'before_set' => null,
-				'set'        => null,
-				'after_set'  => null,
-				'pass'       => false,
-			),
-			'wp-transient-cache' => array(
-				'before_set' => null,
-				'set'        => null,
-				'after_set'  => null,
-				'pass'       => false,
+			'persistent'     => array(
+				'pods-alt-cache'     => array(
+					'before_set' => null,
+					'set'        => null,
+					'after_set'  => null,
+					'pass'       => false,
+				),
+				'wp-object-cache'    => array(
+					'before_set' => null,
+					'set'        => null,
+					'after_set'  => null,
+					'pass'       => false,
+				),
+				'wp-transient-cache' => array(
+					'before_set' => null,
+					'set'        => null,
+					'after_set'  => null,
+					'pass'       => false,
+				),
 			),
 		);
 
-		/**
-		 * Test Pods Alt Cache
-		 */
+		foreach ( $stats as $persist_type => $persist_stats ) {
+			if ( 'rand' == $persist_type ) {
+				continue;
+			}
 
-		$cache_type = 'pods-alt-cache';
-		$cache_name = 'Pods Alt Cache';
+			foreach ( $persist_stats as $cache_type => $stat ) {
+				$cache_name = ucwords( str_replace( '-', ' ', $cache_type ) );
+				$cache_name .= ' (' . ucwords( str_replace( '-', ' ', $persist_type ) ) . ')';
 
-		$stats[ $cache_type ]['before_set'] = (int) pods_cache_get( $cache_key, $cache_group );
+				$before_set = '';
+				$set        = '';
+				$after_set  = '';
 
-		$stats[ $cache_type ]['set'] = pods_cache_set( $cache_key, $stats['rand'], $cache_group, 300 );
+				$key   = $cache_key;
+				$value = $stats['rand'];
 
-		sleep( 1 );
+				if ( 'persistent' == $persist_type ) {
+					$key   = $cache_persist_key;
+					$value = $persist_check;
+				}
 
-		$stats[ $cache_type ]['after_set'] = (int) pods_cache_get( $cache_key, $cache_group );
+				if ( 'pods-alt-cache' == $cache_type ) {
+					$before_set = (int) pods_cache_get( $key, $cache_group );
 
-		if ( $stats['rand'] == $stats[ $cache_type ]['after_set'] ) {
-			$stats[ $cache_type ]['pass'] = true;
+					if ( $value ) {
+						$set = pods_cache_set( $key, (int) $value, $cache_group, 300 );
+					}
+				} elseif ( 'wp-object-cache' == $cache_type ) {
+					$before_set = (int) wp_cache_get( $key, $cache_group );
 
-			var_dump( $cache_name . ' worked!' );
-		} else {
-			$stats[ $cache_type ]['pass'] = false;
+					if ( $value ) {
+						$set = wp_cache_set( $key, (int) $value, $cache_group, 300 );
+					}
+				} elseif ( 'wp-transient-cache' == $cache_type ) {
+					$before_set = (int) get_transient( $key );
 
-			var_dump( $cache_name . ' failed!' );
-		}
+					if ( $value ) {
+						$set = set_transient( $key, (int) $value, 300 );
+					}
+				}
 
-		/**
-		 * Test WP Object Cache
-		 */
+				$stats[ $persist_type ][ $cache_type ]['before_set'] = $before_set;
+				$stats[ $persist_type ][ $cache_type ]['set']        = $set;
 
-		$cache_type = 'wp-object-cache';
-		$cache_name = 'WP Object Cache';
+				sleep( 1 );
 
-		$stats[ $cache_type ]['before_set'] = (int) wp_cache_get( $cache_key, $cache_group );
+				if ( 'pods-alt-cache' == $cache_type ) {
+					$after_set = (int) pods_cache_get( $key, $cache_group );
+				} elseif ( 'wp-object-cache' == $cache_type ) {
+					$after_set = (int) wp_cache_get( $key, $cache_group );
+				} elseif ( 'wp-transient-cache' == $cache_type ) {
+					$after_set = (int) get_transient( $key );
+				}
 
-		$stats[ $cache_type ]['set'] = wp_cache_set( $cache_key, $stats['rand'], $cache_group, 300 );
+				$stats[ $persist_type ][ $cache_type ]['after_set'] = $after_set;
 
-		sleep( 1 );
+				if ( $value ) {
+					if ( $value == $stats[ $persist_type ][ $cache_type ]['after_set'] ) {
+						$stats[ $persist_type ][ $cache_type ]['pass'] = true;
 
-		$stats[ $cache_type ]['after_set'] = (int) wp_cache_get( $cache_key, $cache_group );
+						var_dump( $cache_name . ' worked!' );
+					} else {
+						$stats[ $persist_type ][ $cache_type ]['pass'] = false;
 
-		if ( $stats['rand'] == $stats[ $cache_type ]['after_set'] ) {
-			$stats[ $cache_type ]['pass'] = true;
-
-			var_dump( $cache_name . ' worked!' );
-		} else {
-			$stats[ $cache_type ]['pass'] = false;
-
-			var_dump( $cache_name . ' failed!' );
-		}
-
-		/**
-		 * Test WP Transient Cache
-		 */
-
-		$cache_type = 'wp-transient-cache';
-		$cache_name = 'WP Transient Cache';
-
-		$stats[ $cache_type ]['before_set'] = (int) get_transient( $cache_key );
-
-		$stats[ $cache_type ]['set'] = set_transient( $cache_key, $stats['rand'], 300 );
-
-		sleep( 1 );
-
-		$stats[ $cache_type ]['after_set'] = (int) get_transient( $cache_key );
-
-		if ( $stats['rand'] == $stats[ $cache_type ]['after_set'] ) {
-			$stats[ $cache_type ]['pass'] = true;
-
-			var_dump( $cache_name . ' worked!' );
-		} else {
-			$stats[ $cache_type ]['pass'] = false;
-
-			var_dump( $cache_name . ' failed!' );
+						var_dump( $cache_name . ' failed!' );
+					}
+				} else {
+					var_dump( $cache_name . ' persist check' );
+				}
+			}
 		}
 
 		var_dump( $stats );
@@ -168,4 +196,5 @@ function pods_alternative_cache_test_anon() {
 	}
 
 }
+
 add_action( 'init', 'pods_alternative_cache_test_anon' );
