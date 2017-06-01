@@ -1,10 +1,10 @@
 === Pods Alternative Cache ===
 Contributors: sc0ttkclark
-Donate link: http://podsfoundation.org/donate/
+Donate link: https://pods.io/friends-of-pods/
 Tags: pods, cache, wpengine
 Requires at least: 3.8
-Tested up to: 4.6
-Stable tag: 2.0.1
+Tested up to: 4.8
+Stable tag: 2.0.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -68,6 +68,11 @@ Disable Pods Alternative Cache:
 `define( 'PODS_ALT_CACHE', false ); // Default is true`
 
 == Changelog ==
+
+= 2.0.2 - June XXth, 2017 =
+* Revamped branding assets
+* Fixed php notice
+* Fixed usage of memcached port to be an integer
 
 = 2.0.1 - July 13th, 2016 =
 * Fixed cache file/folder deleting bug that wouldn't let Pods clear / preload caches properly
