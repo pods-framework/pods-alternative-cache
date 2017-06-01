@@ -47,7 +47,7 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 		if ( ! $wp_filesystem ) {
 			return false;
 		} elseif ( ! $wp_filesystem->is_dir( PODS_ALT_FILE_CACHE_DIR ) ) {
-			if ( ! $wp_filesystem->mkdir( PODS_ALT_FILE_CACHE_DIR, FS_CHMOD_DIR ) ) {
+			if ( ! defined( 'FS_CHMOD_DIR' ) || ! $wp_filesystem->mkdir( PODS_ALT_FILE_CACHE_DIR, FS_CHMOD_DIR ) ) {
 				return false;
 			}
 		}
@@ -379,7 +379,7 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 				foreach ( $directories as $directory ) {
 					$dir_path .= DIRECTORY_SEPARATOR . $directory;
 
-					if ( ! $wp_filesystem->is_dir( $dir_path ) && ! $wp_filesystem->mkdir( $dir_path, FS_CHMOD_DIR ) ) {
+					if ( ! $wp_filesystem->is_dir( $dir_path ) && ( ! defined( 'FS_CHMOD_DIR' ) || ! $wp_filesystem->mkdir( $dir_path, FS_CHMOD_DIR ) ) ) {
 						$path = false;
 
 						break;
