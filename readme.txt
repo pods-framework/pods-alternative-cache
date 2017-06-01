@@ -61,7 +61,7 @@ Set MemCached Server host or IP address
 
 Set MemCached Server PORT number
 
-`define( 'PODS_ALT_CACHE_MEMCACHED_PORT', 11211 ); // Default is '11211'`
+`define( 'PODS_ALT_CACHE_MEMCACHED_PORT', 11211 ); // Default is 11211`
 
 Disable Pods Alternative Cache:
 
