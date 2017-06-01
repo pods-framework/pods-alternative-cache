@@ -3,7 +3,7 @@
 Plugin Name: Pods Alternative Cache
 Plugin URI: http://pods.io/2014/04/16/introducing-pods-alternative-cache/
 Description: Alternative caching engine for Pods for large sites on hosts with hard limits on how much you can cache
-Version: 2.0.1
+Version: 2.0.2
 Author: The Pods Framework Team
 Author URI: http://pods.io/
 */
