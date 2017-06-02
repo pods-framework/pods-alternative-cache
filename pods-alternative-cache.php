@@ -8,6 +8,7 @@ Author: The Pods Framework Team
 Author URI: https://pods.io/
 */
 
+define( 'PODS_ALT_CACHE_VERSION', '2.0.2' );
 define( 'PODS_ALT_CACHE_DIR', plugin_dir_path( __FILE__ ) );
 
 /**
