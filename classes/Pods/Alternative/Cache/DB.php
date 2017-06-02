@@ -2,33 +2,35 @@
 /**
  * Class Pods_Alternative_Cache_DB
  */
-class Pods_Alternative_Cache_DB extends Pods_Alternative_Cache_Storage {
+class Pods_Alternative_Cache_DB extends Pods_Alternative_Cache_Storage
+{
 
-	/**
-	 * Table name for caching
-	 */
-	const TABLE = 'podscache';
+    /**
+     * Table name for caching
+     */
+    const TABLE = 'podscache';
 
-	/**
-	 * Setup storage type object
-	 */
-	public function __construct() {
+    /**
+     * Setup storage type object
+     */
+    public function __construct()
+    {
 
-		// Setup object options
+        // Setup object options
+    }
 
-	}
+    /**
+     * Activate plugin routine
+     *
+     * @param boolean $network_wide Whether the action is network-wide
+     */
+    public function activate($network_wide = false)
+    {
 
-	/**
-	 * Activate plugin routine
-	 *
-	 * @param boolean $network_wide Whether the action is network-wide
-	 */
-	public function activate( $network_wide = false ) {
+        $table = $this->table();
 
-		$table = $this->table();
-
-		$tables = array(
-			"
+        $tables = array(
+            "
 			CREATE TABLE `{$table}` (
 				`cache_key` VARCHAR(255) NOT NULL,
 				`cache_group` VARCHAR(255) NOT NULL,
@@ -38,187 +40,185 @@ class Pods_Alternative_Cache_DB extends Pods_Alternative_Cache_Storage {
 				UNIQUE INDEX `cache_key_group` (`cache_key`, `cache_group`)
 			)
 		"
-		);
+        );
 
-		// Create / alter table handling
-		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+        // Create / alter table handling
+        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
-		dbDelta( $tables );
+        dbDelta( $tables );
+    }
 
-	}
+    /**
+     * Deactivate plugin routine
+     *
+     * @param boolean $network_wide Whether the action is network-wide
+     */
+    public function deactivate($network_wide = false)
+    {
 
-	/**
-	 * Deactivate plugin routine
-	 *
-	 * @param boolean $network_wide Whether the action is network-wide
-	 */
-	public function deactivate( $network_wide = false ) {
+        /**
+         * @var $wpdb wpdb
+         */
+        global $wpdb;
 
-		/**
-		 * @var $wpdb wpdb
-		 */
-		global $wpdb;
+        $table = $this->table();
 
-		$table = $this->table();
+        $wpdb->query( "DROP TABLE IF EXISTS `{$table}`" );
+    }
 
-		$wpdb->query( "DROP TABLE IF EXISTS `{$table}`" );
+    /**
+     * Get the table name with prefix
+     *
+     * @return string
+     */
+    public function table()
+    {
 
-	}
+        /**
+         * @var $wpdb wpdb
+         */
+        global $wpdb;
 
-	/**
-	 * Get the table name with prefix
-	 *
-	 * @return string
-	 */
-	public function table() {
+        return $wpdb->prefix . self::TABLE;
+    }
 
-		/**
-		 * @var $wpdb wpdb
-		 */
-		global $wpdb;
+    /**
+     * Get the cache key with max char handling
+     *
+     * @param string|boolean $cache_key
+     *
+     * @return string|boolean
+     */
+    public function cache_key_limited($cache_key)
+    {
 
-		return $wpdb->prefix . self::TABLE;
+        // If string is larger than our column, md5 the portion that goes over
+        if (! is_bool( $cache_key ) && 255 < strlen( $cache_key )) {
+            $cache_key = substr( $cache_key, 0, 222 ) . md5( substr( $cache_key, 222 ) );
+        }
 
-	}
+        return $cache_key;
+    }
 
-	/**
-	 * Get the cache key with max char handling
-	 *
-	 * @param string|boolean $cache_key
-	 *
-	 * @return string|boolean
-	 */
-	public function cache_key_limited( $cache_key ) {
+    /**
+     * Get cached value from DB cache
+     *
+     * @param string|boolean $cache_key
+     * @param string         $group
+     *
+     * @return mixed|null
+     */
+    public function get_value($cache_key, $group = '')
+    {
 
-		// If string is larger than our column, md5 the portion that goes over
-		if ( ! is_bool( $cache_key ) && 255 < strlen( $cache_key ) ) {
-			$cache_key = substr( $cache_key, 0, 222 ) . md5( substr( $cache_key, 222 ) );
-		}
+        /**
+         * @var $wpdb wpdb
+         */
+        global $wpdb;
 
-		return $cache_key;
+        // Enforce column limits
+        $cache_key = $this->cache_key_limited( $cache_key );
 
-	}
+        $table = $this->table();
 
-	/**
-	 * Get cached value from DB cache
-	 *
-	 * @param string|boolean $cache_key
-	 * @param string         $group
-	 *
-	 * @return mixed|null
-	 */
-	public function get_value( $cache_key, $group = '' ) {
-
-		/**
-		 * @var $wpdb wpdb
-		 */
-		global $wpdb;
-
-		// Enforce column limits
-		$cache_key = $this->cache_key_limited( $cache_key );
-
-		$table = $this->table();
-
-		$sql = "
+        $sql = "
 			SELECT `cache_value`, `expiration`
 			FROM `{$table}`
 			WHERE `cache_key` = %s AND `cache_group` = %s
 			LIMIT 1
 		";
 
-		$cache = $wpdb->get_row( $wpdb->prepare( $sql, $cache_key, $group ) );
+        $cache = $wpdb->get_row( $wpdb->prepare( $sql, $cache_key, $group ) );
 
-		$cache_value = null;
+        $cache_value = null;
 
-		if ( null !== $cache ) {
-			$cache->expiration = (int) $cache->expiration;
+        if (null !== $cache) {
+            $cache->expiration = (int) $cache->expiration;
 
-			if ( 0 < $cache->expiration && $cache->expiration < time() ) {
-				$this->set_value( $cache_key, '', 0, $group );
-			} else {
-				$cache_value = maybe_unserialize( $cache_value );
-			}
-		} elseif ( '' !== $cache ) {
-			$cache_value = $cache;
-		}
+            if (0 < $cache->expiration && $cache->expiration < time()) {
+                $this->set_value( $cache_key, '', 0, $group );
+            } else {
+                $cache_value = maybe_unserialize( $cache_value );
+            }
+        } elseif ('' !== $cache) {
+            $cache_value = $cache;
+        }
 
-		return $cache_value;
+        return $cache_value;
+    }
 
-	}
+    /**
+     * Set cached value in DB cache
+     *
+     * @param string|boolean $cache_key
+     * @param mixed          $cache_value
+     * @param int            $expires
+     * @param string         $group
+     *
+     * @return bool
+     */
+    public function set_value($cache_key, $cache_value, $expires = 0, $group = '')
+    {
 
-	/**
-	 * Set cached value in DB cache
-	 *
-	 * @param string|boolean $cache_key
-	 * @param mixed          $cache_value
-	 * @param int            $expires
-	 * @param string         $group
-	 *
-	 * @return bool
-	 */
-	public function set_value( $cache_key, $cache_value, $expires = 0, $group = '' ) {
+        /**
+         * @var $wpdb wpdb
+         */
+        global $wpdb;
 
-		/**
-		 * @var $wpdb wpdb
-		 */
-		global $wpdb;
+        // Enforce column limits
+        $cache_key = $this->cache_key_limited( $cache_key );
 
-		// Enforce column limits
-		$cache_key = $this->cache_key_limited( $cache_key );
+        $table = $this->table();
 
-		$table = $this->table();
+        if ('' === $cache_value) {
+            if (true === $cache_key) {
+                return $this->clear();
+            }
 
-		if ( '' === $cache_value ) {
-			if ( true === $cache_key ) {
-				return $this->clear();
-			}
-
-			$sql = "
+            $sql = "
 				DELETE FROM `{$table}`
 				WHERE `cache_key` = %s AND `cache_group` = %s
 			";
 
-			$wpdb->query( $wpdb->prepare( $sql, $cache_key, $group ) );
-		} else {
-			$cache_value = maybe_serialize( $cache_value );
+            $wpdb->query( $wpdb->prepare( $sql, $cache_key, $group ) );
+        } else {
+            $cache_value = maybe_serialize( $cache_value );
 
-			$expires_at = 0;
+            $expires_at = 0;
 
-			if ( 0 < (int) $expires ) {
-				$expires_at = time() + (int) $expires;
-			}
+            if (0 < (int) $expires) {
+                $expires_at = time() + (int) $expires;
+            }
 
-			$sql = "
+            $sql = "
 				REPLACE INTO `{$table}`
 				( `cache_key`, `cache_group`, `cache_value`, `expiration` )
 				VALUES ( %s, %s, %s, %d, %d )
 			";
 
-			$wpdb->query( $wpdb->prepare( $sql, $cache_key, $group, $cache_value, $expires_at ) );
-		}
+            $wpdb->query( $wpdb->prepare( $sql, $cache_key, $group, $cache_value, $expires_at ) );
+        }
 
-		return true;
+        return true;
+    }
 
-	}
+    /**
+     * Clear DB cache
+     *
+     * @return bool
+     */
+    public function clear()
+    {
 
-	/**
-	 * Clear DB cache
-	 *
-	 * @return bool
-	 */
-	public function clear() {
+        /**
+         * @var $wpdb wpdb
+         */
+        global $wpdb;
 
-		/**
-		 * @var $wpdb wpdb
-		 */
-		global $wpdb;
+        $table = $this->table();
 
-		$table = $this->table();
+        $wpdb->query( "TRUNCATE `{$table}`" );
 
-		$wpdb->query( "TRUNCATE `{$table}`" );
-
-		return true;
-
-	}
-
+        return true;
+    }
 }
