@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: Pods Alternative Cache
-Plugin URI: http://pods.io/
+Plugin URI: https://pods.io/
 Description: Alternative caching engine for Pods for large sites on hosts with hard limits on how much you can cache
 Version: 2.0.2
 Author: The Pods Framework Team
-Author URI: http://pods.io/
+Author URI: https://pods.io/
 */
 
 define( 'PODS_ALT_CACHE_DIR', plugin_dir_path( __FILE__ ) );
