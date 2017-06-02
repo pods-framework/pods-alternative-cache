@@ -69,7 +69,7 @@ Disable Pods Alternative Cache:
 
 == Changelog ==
 
-= 2.0.2 - June XXth, 2017 =
+= 2.0.2 - June 2nd, 2017 =
 * Revamped branding assets
 * Fixed php notice
 * Fixed usage of memcached port to be an integer
