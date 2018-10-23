@@ -3,8 +3,8 @@ Contributors: sc0ttkclark
 Donate link: https://pods.io/friends-of-pods/
 Tags: pods, cache, wpengine
 Requires at least: 3.8
-Tested up to: 4.8
-Stable tag: 2.0.2
+Tested up to: 5.0
+Stable tag: 2.0.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,13 +12,13 @@ Pods Alternative Cache is a file-based or database-based caching solution for ho
 
 == Description ==
 
-Pods Alternative Cache provides optimal performance with Pods sites on hosts with no object caching or low limits. It was developed for and tested against the WPEngine platform to improve performance of cached objects generated from Pods, but it works on numerous other hosting providers.
+Pods Alternative Cache provides optimal performance with Pods sites on hosts with no object caching or low limits. It was developed for and tested on the WPEngine platform to improve performance of cached objects generated from Pods, but it works on numerous other hosting providers.
 
 Pods Alternative Cache is a great addition to a site already utilizing Object Caching, it further separates and allows Pods to utilize more consistent persistent caching without affecting other plugins and WordPress caching objects. Especially when utilizing larger configurations, this plugin improves performance by ensuring other necessary objects are not removed by the server to make room for Pods cached objects.
 
 This plugin requires the [Pods Framework](http://wordpress.org/plugins/pods/) version 2.4 or later to run.
 
-For more information on how to use this plugin, see [http://pods.io/2014/04/16/introducing-pods-alternative-cache/](http://pods.io/2014/04/16/introducing-pods-alternative-cache/).
+For more information on how to use this plugin, see [https://pods.io/2014/04/16/introducing-pods-alternative-cache/](https://pods.io/2014/04/16/introducing-pods-alternative-cache/).
 
 == Installation ==
 
@@ -68,6 +68,11 @@ Disable Pods Alternative Cache:
 `define( 'PODS_ALT_CACHE', false ); // Default is true`
 
 == Changelog ==
+
+= 2.0.3 - October 23rd, 2018 =
+* Fixed cases where transients/object cache could be used by Pods before Pods Alt Cache fully loads
+* Updated WP compatibility version
+* PHPCS fixes
 
 = 2.0.2 - June 2nd, 2017 =
 * Revamped branding assets

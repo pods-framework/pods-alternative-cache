@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class Pods_Alternative_Cache_File
  */
@@ -21,15 +22,15 @@ class Pods_Alternative_Cache_Memcached extends Pods_Alternative_Cache_Storage {
 	 */
 	public function __construct() {
 
+		parent::__construct();
+
 		// Connect to the server
 		$this->_connect();
 
 	}
 
 	/**
-	 * Activate plugin routine
-	 *
-	 * @param boolean $network_wide Whether the action is network-wide
+	 * {@inheritdoc}
 	 */
 	public function activate( $network_wide = false ) {
 
@@ -38,9 +39,7 @@ class Pods_Alternative_Cache_Memcached extends Pods_Alternative_Cache_Storage {
 	}
 
 	/**
-	 * Deactivate plugin routine
-	 *
-	 * @param boolean $network_wide Whether the action is network-wide
+	 * {@inheritdoc}
 	 */
 	public function deactivate( $network_wide = false ) {
 
@@ -49,12 +48,7 @@ class Pods_Alternative_Cache_Memcached extends Pods_Alternative_Cache_Storage {
 	}
 
 	/**
-	 * Get cached value from file cache
-	 *
-	 * @param string $cache_key
-	 * @param string $group
-	 *
-	 * @return mixed|null
+	 * {@inheritdoc}
 	 */
 	public function get_value( $cache_key, $group = '' ) {
 
@@ -66,21 +60,12 @@ class Pods_Alternative_Cache_Memcached extends Pods_Alternative_Cache_Storage {
 		$cache_key = $this->_get_cache_key( $cache_key, $group );
 
 		// Get the value of the cache
-		$data = $this->_memcache->get( $cache_key );
-
-		return $data;
+		return $this->_memcache->get( $cache_key );
 
 	}
 
 	/**
-	 * Set cached value in file cache
-	 *
-	 * @param string|boolean $cache_key
-	 * @param mixed          $cache_value
-	 * @param int            $expires
-	 * @param string         $group
-	 *
-	 * @return bool
+	 * {@inheritdoc}
 	 */
 	public function set_value( $cache_key, $cache_value, $expires = 0, $group = '' ) {
 
@@ -104,14 +89,12 @@ class Pods_Alternative_Cache_Memcached extends Pods_Alternative_Cache_Storage {
 	}
 
 	/**
-	 * Clear all items in memcache
-	 *
-	 * @return bool
+	 * {@inheritdoc}
 	 */
 	public function clear() {
 
 		if ( ! $this->_memcache ) {
-			return;
+			return false;
 		}
 
 		// Get all memcached keys
@@ -123,9 +106,10 @@ class Pods_Alternative_Cache_Memcached extends Pods_Alternative_Cache_Storage {
 			if ( false !== strpos( $key, $this->_namespace ) ) {
 				// Then delete the item
 				$this->_memcache->delete( $key );
-
 			}
 		}
+
+		return true;
 
 	}
 
@@ -142,7 +126,7 @@ class Pods_Alternative_Cache_Memcached extends Pods_Alternative_Cache_Storage {
 		$current_blog_id = (string) get_current_blog_id();
 		$current_blog_id = str_pad( $current_blog_id, 6, '0', STR_PAD_LEFT );
 
-		$cache_key       = $this->_namespace . md5( $cache_key . '_' . $group );
+		$cache_key = $this->_namespace . md5( $cache_key . '_' . $group );
 
 		return $cache_key;
 
@@ -159,7 +143,7 @@ class Pods_Alternative_Cache_Memcached extends Pods_Alternative_Cache_Storage {
 
 		$port = 11211;
 
-		if ( defined( 'PODS_ALT_CACHE_MEMCACHED_PORT' ) && PODS_ALT_CACHE_MEMCACHED_PORT && is_integer(PODS_ALT_CACHE_MEMCACHED_PORT) ) {
+		if ( defined( 'PODS_ALT_CACHE_MEMCACHED_PORT' ) && PODS_ALT_CACHE_MEMCACHED_PORT && is_integer( PODS_ALT_CACHE_MEMCACHED_PORT ) ) {
 			$port = PODS_ALT_CACHE_MEMCACHED_PORT;
 		}
 

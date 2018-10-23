@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: Pods Alternative Cache
-Plugin URI: http://pods.io/2014/04/16/introducing-pods-alternative-cache/
-Description: Alternative caching engine for Pods for large sites on hosts with hard limits on how much you can cache
-Version: 2.0.2
-Author: The Pods Framework Team
-Author URI: http://pods.io/
+Plugin URI: https://pods.io/2014/04/16/introducing-pods-alternative-cache/
+Description: Alternative caching engine for Pods for large sites on hosts with hard limits on how much you can store in the object cache
+Version: 2.0.3
+Author: Pods Framework Team
+Author URI: https://pods.io/
 */
 
 define( 'PODS_ALT_CACHE_DIR', plugin_dir_path( __FILE__ ) );
@@ -38,7 +38,7 @@ function pods_alternative_cache_init() {
 
 	$cache_type = 'file';
 
-	if ( in_array( PODS_ALT_CACHE_TYPE, array( 'file', 'db', 'memcached' ) ) ) {
+	if ( in_array( PODS_ALT_CACHE_TYPE, array( 'file', 'db', 'memcached' ), true ) ) {
 		$cache_type = PODS_ALT_CACHE_TYPE;
 	}
 
@@ -49,7 +49,7 @@ function pods_alternative_cache_init() {
 
 }
 
-add_action( 'plugins_loaded', 'pods_alternative_cache_init' );
+add_action( 'plugins_loaded', 'pods_alternative_cache_init', 5 );
 
 /**
  * Add support for cache debugging (to confirm writes are working as expected)
@@ -64,7 +64,7 @@ function pods_alternative_cache_test_anon() {
 		$persist_check = '';
 
 		if ( ! empty( $_GET['altcache_debug_check'] ) ) {
-			$persist_check = $_GET['altcache_debug_check'];
+			$persist_check = sanitize_text_field( $_GET['altcache_debug_check'] );
 		}
 
 		$cache_key   = 'pods-alt-cache-test';
@@ -117,12 +117,12 @@ function pods_alternative_cache_test_anon() {
 		);
 
 		foreach ( $stats as $persist_type => $persist_stats ) {
-			if ( 'rand' == $persist_type ) {
+			if ( 'rand' === $persist_type ) {
 				continue;
 			}
 
 			foreach ( $persist_stats as $cache_type => $stat ) {
-				$cache_name = ucwords( str_replace( '-', ' ', $cache_type ) );
+				$cache_name  = ucwords( str_replace( '-', ' ', $cache_type ) );
 				$cache_name .= ' (' . ucwords( str_replace( '-', ' ', $persist_type ) ) . ')';
 
 				$before_set = '';
@@ -132,24 +132,24 @@ function pods_alternative_cache_test_anon() {
 				$key   = $cache_key;
 				$value = $stats['rand'];
 
-				if ( 'persistent' == $persist_type ) {
+				if ( 'persistent' === $persist_type ) {
 					$key   = $cache_persist_key;
 					$value = $persist_check;
 				}
 
-				if ( 'pods-alt-cache' == $cache_type ) {
+				if ( 'pods-alt-cache' === $cache_type ) {
 					$before_set = (int) pods_cache_get( $key, $cache_group );
 
 					if ( $value ) {
 						$set = pods_cache_set( $key, (int) $value, $cache_group, 300 );
 					}
-				} elseif ( 'wp-object-cache' == $cache_type ) {
+				} elseif ( 'wp-object-cache' === $cache_type ) {
 					$before_set = (int) wp_cache_get( $key, $cache_group );
 
 					if ( $value ) {
 						$set = wp_cache_set( $key, (int) $value, $cache_group, 300 );
 					}
-				} elseif ( 'wp-transient-cache' == $cache_type ) {
+				} elseif ( 'wp-transient-cache' === $cache_type ) {
 					$before_set = (int) get_transient( $key );
 
 					if ( $value ) {
@@ -162,11 +162,11 @@ function pods_alternative_cache_test_anon() {
 
 				sleep( 1 );
 
-				if ( 'pods-alt-cache' == $cache_type ) {
+				if ( 'pods-alt-cache' === $cache_type ) {
 					$after_set = (int) pods_cache_get( $key, $cache_group );
-				} elseif ( 'wp-object-cache' == $cache_type ) {
+				} elseif ( 'wp-object-cache' === $cache_type ) {
 					$after_set = (int) wp_cache_get( $key, $cache_group );
-				} elseif ( 'wp-transient-cache' == $cache_type ) {
+				} elseif ( 'wp-transient-cache' === $cache_type ) {
 					$after_set = (int) get_transient( $key );
 				}
 

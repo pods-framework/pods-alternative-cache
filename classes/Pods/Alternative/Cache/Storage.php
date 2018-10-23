@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class Pods_Alternative_Cache_Storage
  */
@@ -60,6 +61,17 @@ class Pods_Alternative_Cache_Storage {
 	 * @return bool
 	 */
 	public function set_value( $cache_key, $value, $expires, $group ) {
+
+		return false;
+
+	}
+
+	/**
+	 * Clear file cache
+	 *
+	 * @return bool
+	 */
+	public function clear() {
 
 		return false;
 
