@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class Pods_Alternative_Cache_DB
  */
@@ -10,18 +11,7 @@ class Pods_Alternative_Cache_DB extends Pods_Alternative_Cache_Storage {
 	const TABLE = 'podscache';
 
 	/**
-	 * Setup storage type object
-	 */
-	public function __construct() {
-
-		// Setup object options
-
-	}
-
-	/**
-	 * Activate plugin routine
-	 *
-	 * @param boolean $network_wide Whether the action is network-wide
+	 * {@inheritdoc}
 	 */
 	public function activate( $network_wide = false ) {
 
@@ -48,9 +38,7 @@ class Pods_Alternative_Cache_DB extends Pods_Alternative_Cache_Storage {
 	}
 
 	/**
-	 * Deactivate plugin routine
-	 *
-	 * @param boolean $network_wide Whether the action is network-wide
+	 * {@inheritdoc}
 	 */
 	public function deactivate( $network_wide = false ) {
 
@@ -66,46 +54,7 @@ class Pods_Alternative_Cache_DB extends Pods_Alternative_Cache_Storage {
 	}
 
 	/**
-	 * Get the table name with prefix
-	 *
-	 * @return string
-	 */
-	public function table() {
-
-		/**
-		 * @var $wpdb wpdb
-		 */
-		global $wpdb;
-
-		return $wpdb->prefix . self::TABLE;
-
-	}
-
-	/**
-	 * Get the cache key with max char handling
-	 *
-	 * @param string|boolean $cache_key
-	 *
-	 * @return string|boolean
-	 */
-	public function cache_key_limited( $cache_key ) {
-
-		// If string is larger than our column, md5 the portion that goes over
-		if ( ! is_bool( $cache_key ) && 255 < strlen( $cache_key ) ) {
-			$cache_key = substr( $cache_key, 0, 222 ) . md5( substr( $cache_key, 222 ) );
-		}
-
-		return $cache_key;
-
-	}
-
-	/**
-	 * Get cached value from DB cache
-	 *
-	 * @param string|boolean $cache_key
-	 * @param string         $group
-	 *
-	 * @return mixed|null
+	 * {@inheritdoc}
 	 */
 	public function get_value( $cache_key, $group = '' ) {
 
@@ -147,14 +96,7 @@ class Pods_Alternative_Cache_DB extends Pods_Alternative_Cache_Storage {
 	}
 
 	/**
-	 * Set cached value in DB cache
-	 *
-	 * @param string|boolean $cache_key
-	 * @param mixed          $cache_value
-	 * @param int            $expires
-	 * @param string         $group
-	 *
-	 * @return bool
+	 * {@inheritdoc}
 	 */
 	public function set_value( $cache_key, $cache_value, $expires = 0, $group = '' ) {
 
@@ -202,9 +144,7 @@ class Pods_Alternative_Cache_DB extends Pods_Alternative_Cache_Storage {
 	}
 
 	/**
-	 * Clear DB cache
-	 *
-	 * @return bool
+	 * {@inheritdoc}
 	 */
 	public function clear() {
 
@@ -218,6 +158,40 @@ class Pods_Alternative_Cache_DB extends Pods_Alternative_Cache_Storage {
 		$wpdb->query( "TRUNCATE `{$table}`" );
 
 		return true;
+
+	}
+
+	/**
+	 * Get the table name with prefix
+	 *
+	 * @return string
+	 */
+	public function table() {
+
+		/**
+		 * @var $wpdb wpdb
+		 */
+		global $wpdb;
+
+		return $wpdb->prefix . self::TABLE;
+
+	}
+
+	/**
+	 * Get the cache key with max char handling
+	 *
+	 * @param mixed $cache_key
+	 *
+	 * @return mixed
+	 */
+	public function cache_key_limited( $cache_key ) {
+
+		// If string is larger than our column, md5 the portion that goes over
+		if ( ! is_bool( $cache_key ) && 255 < strlen( $cache_key ) ) {
+			$cache_key = substr( $cache_key, 0, 222 ) . md5( substr( $cache_key, 222 ) );
+		}
+
+		return $cache_key;
 
 	}
 

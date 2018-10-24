@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class Pods_Alternative_Cache
  */
@@ -22,7 +23,7 @@ class Pods_Alternative_Cache {
 		'memcached' => 'Pods_Alternative_Cache_Memcached',
 	);
 
-	public $last = '';
+	public $last     = '';
 	public $last_key = '';
 
 	/**
@@ -83,7 +84,7 @@ class Pods_Alternative_Cache {
 		wp_cache_flush();
 
 		foreach ( self::$storage_types as $storage => $class ) {// If storage type not set, default to file storage
-			if ( $class === get_class( $this->storage ) ) {
+			if ( get_class( $this->storage ) === $class ) {
 				continue;
 			}
 
@@ -212,7 +213,7 @@ class Pods_Alternative_Cache {
 
 		if ( ! PODS_ALT_CACHE ) {
 			$is_enabled = false;
-		} elseif ( ! in_array( $cache_mode, $supported_modes ) ) {
+		} elseif ( ! in_array( $cache_mode, $supported_modes, true ) ) {
 			$is_enabled = false;
 		}
 

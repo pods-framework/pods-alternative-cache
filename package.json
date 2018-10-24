@@ -1,0 +1,14 @@
+{
+  "name": "pods-alternative-cache",
+  "version": "2.0.3",
+  "description": "Alternative caching engine for Pods for large sites on hosts with hard limits on how much you can store in the object cache.",
+  "author": "Pods Foundation, Inc",
+  "homepage": "https://pods.io",
+  "bugs": "https://github.com/pods-framework/pods-alternative-cache/issues",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/pods-framework/pods-alternative-cache.git"
+  },
+  "license": "GPL-2.0+",
+  "contributors": "https://github.com/pods-framework/pods-alternative-cache/graphs/contributors"
+}

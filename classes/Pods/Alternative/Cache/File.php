@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class Pods_Alternative_Cache_File
  */
@@ -10,9 +11,16 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 	public static $wpe_compatible = false;
 
 	/**
-	 * Setup storage type object
+	 * @var array Cached values.
+	 */
+	public static $values = array();
+
+	/**
+	 * {@inheritdoc}
 	 */
 	public function __construct() {
+
+		parent::__construct();
 
 		// Set cache directory path
 		if ( ! defined( 'PODS_ALT_FILE_CACHE_DIR' ) ) {
@@ -27,15 +35,13 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 	}
 
 	/**
-	 * Activate plugin routine
-	 *
-	 * @param boolean $network_wide Whether the action is network-wide
+	 * {@inheritdoc}
 	 */
 	public function activate( $network_wide = false ) {
 
 		$this->clear();
 
-		require_once( ABSPATH . 'wp-admin/includes/file.php' );
+		require_once ABSPATH . 'wp-admin/includes/file.php';
 
 		/**
 		 * @var $wp_filesystem WP_Filesystem_Base
@@ -46,7 +52,9 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 
 		if ( ! $wp_filesystem ) {
 			return false;
-		} elseif ( ! $wp_filesystem->is_dir( PODS_ALT_FILE_CACHE_DIR ) ) {
+		}
+
+		if ( ! $wp_filesystem->is_dir( PODS_ALT_FILE_CACHE_DIR ) ) {
 			if ( ! defined( 'FS_CHMOD_DIR' ) || ! $wp_filesystem->mkdir( PODS_ALT_FILE_CACHE_DIR, FS_CHMOD_DIR ) ) {
 				return false;
 			}
@@ -57,15 +65,13 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 	}
 
 	/**
-	 * Deactivate plugin routine
-	 *
-	 * @param boolean $network_wide Whether the action is network-wide
+	 * {@inheritdoc}
 	 */
 	public function deactivate( $network_wide = false ) {
 
 		$this->clear();
 
-		require_once( ABSPATH . 'wp-admin/includes/file.php' );
+		require_once ABSPATH . 'wp-admin/includes/file.php';
 
 		/**
 		 * @var $wp_filesystem WP_Filesystem_Base
@@ -76,7 +82,9 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 
 		if ( ! $wp_filesystem ) {
 			return false;
-		} elseif ( $wp_filesystem->is_dir( PODS_ALT_FILE_CACHE_DIR ) ) {
+		}
+
+		if ( $wp_filesystem->is_dir( PODS_ALT_FILE_CACHE_DIR ) ) {
 			$wp_filesystem->rmdir( PODS_ALT_FILE_CACHE_DIR );
 		}
 
@@ -85,38 +93,17 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 	}
 
 	/**
-	 * WPEngine support for anonymous file writes
-	 */
-	public function wpe_compatibility() {
-
-		if ( ! self::$wpe_compatible && defined( 'WPE_APIKEY' ) && ! is_user_logged_in() ) {
-			$wpe_cookie = 'wpe-auth';
-
-			$cookie_value = md5( 'wpe_auth_salty_dog|' . WPE_APIKEY );
-
-			if ( empty( $_COOKIE[ $wpe_cookie ] ) || $_COOKIE[ $wpe_cookie ] != $cookie_value ) {
-				$expire = 2 * DAY_IN_SECONDS;
-				$expire += time();
-
-				setcookie( $wpe_cookie, $cookie_value, $expire, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
-			}
-
-			self::$wpe_compatible = true;
-		}
-
-	}
-
-	/**
-	 * Get cached value from file cache
-	 *
-	 * @param string $cache_key
-	 * @param string $group
-	 *
-	 * @return mixed|null
+	 * {@inheritdoc}
 	 */
 	public function get_value( $cache_key, $group = '' ) {
 
-		require_once( ABSPATH . 'wp-admin/includes/file.php' );
+		$value_key = $group . '_' . $cache_key;
+
+		if ( isset( self::$values[ $value_key ] ) ) {
+			return self::$values[ $value_key ];
+		}
+
+		require_once ABSPATH . 'wp-admin/includes/file.php';
 
 		/**
 		 * @var $wp_filesystem WP_Filesystem_Base
@@ -127,7 +114,13 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 
 		if ( ! $wp_filesystem ) {
 			if ( defined( 'PODS_ALT_CACHE_DEBUG' ) && PODS_ALT_CACHE_DEBUG && class_exists( 'WP_Papertrail_API' ) ) {
-				\WP_Papertrail_API::log( array( 'msg' => 'Filesystem not working', '$cache_key' => $cache_key, '$group' => $group ), str_replace( '::', '\\', __METHOD__ ) );
+				\WP_Papertrail_API::log( array(
+					'msg'        => 'Filesystem not working',
+					'$cache_key' => $cache_key,
+					'$group'     => $group,
+				), str_replace( '::', '\\', __METHOD__ ) );
+			} else {
+				echo '<!--' . esc_html( __CLASS__ ) . ': Filesystem not working, cannot get value-->' . "\n";
 			}
 
 			return false;
@@ -149,13 +142,20 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 
 		if ( ! $path ) {
 			return null;
-		} else {
-			$path .= DIRECTORY_SEPARATOR . $md5_file;
 		}
+
+		$path .= DIRECTORY_SEPARATOR . $md5_file;
 
 		if ( ! $wp_filesystem->is_readable( $path ) ) {
 			if ( defined( 'PODS_ALT_CACHE_DEBUG' ) && PODS_ALT_CACHE_DEBUG && class_exists( 'WP_Papertrail_API' ) ) {
-				\WP_Papertrail_API::log( array( 'msg' => 'File not readable', '$cache_key' => $cache_key, '$group' => $group, '$path' => $path ), str_replace( '::', '\\', __METHOD__ ) );
+				\WP_Papertrail_API::log( array(
+					'msg'        => 'File not readable',
+					'$cache_key' => $cache_key,
+					'$group'     => $group,
+					'$path'      => $path,
+				), str_replace( '::', '\\', __METHOD__ ) );
+			} else {
+				echo '<!--' . esc_html( __CLASS__ ) . ': Path is not readable (' . esc_html( $path ) . ')-->' . "\n";
 			}
 
 			return null;
@@ -163,9 +163,14 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 
 		if ( defined( 'PODS_ALT_CACHE_DEBUG' ) && PODS_ALT_CACHE_DEBUG ) {
 			if ( class_exists( 'WP_Papertrail_API' ) ) {
-				\WP_Papertrail_API::log( array( 'msg' => 'File read', '$cache_key' => $cache_key, '$group' => $group, '$path' => $path ), str_replace( '::', '\\', __METHOD__ ) );
+				\WP_Papertrail_API::log( array(
+					'msg'        => 'File read',
+					'$cache_key' => $cache_key,
+					'$group'     => $group,
+					'$path'      => $path,
+				), str_replace( '::', '\\', __METHOD__ ) );
 			} else {
-				echo '<!--' . __CLASS__ . ': File read (' . $path . ')-->' . "\n";
+				echo '<!--' . esc_html( __CLASS__ ) . ': File read (' . esc_html( $path ) . ')-->' . "\n";
 			}
 		}
 
@@ -186,11 +191,13 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 				$this->set_value( $cache_key, '' );
 
 				return $data_unserialized;
-			} else {
-				$data = substr( $contents, 20 );
-
-				$data_unserialized = maybe_unserialize( $data );
 			}
+
+			$data = substr( $contents, 20 );
+
+			$data_unserialized = maybe_unserialize( $data );
+
+			self::$values[ $value_key ] = $data_unserialized;
 		}
 
 		return $data_unserialized;
@@ -198,18 +205,21 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 	}
 
 	/**
-	 * Set cached value in file cache
-	 *
-	 * @param string|boolean $cache_key
-	 * @param mixed          $cache_value
-	 * @param int            $expires
-	 * @param string         $group
-	 *
-	 * @return bool
+	 * {@inheritdoc}
 	 */
 	public function set_value( $cache_key, $cache_value, $expires = 0, $group = '' ) {
 
-		require_once( ABSPATH . 'wp-admin/includes/file.php' );
+		$value_key = $group . '_' . $cache_key;
+
+		// Check if we've already cached this value.
+		if ( '' !== $cache_value && isset( self::$values[ $value_key ] ) && self::$values[ $value_key ] === $cache_value ) {
+			return true;
+		}
+
+		// WPE Compatibility for anonymous file writes
+		$this->wpe_compatibility();
+
+		require_once ABSPATH . 'wp-admin/includes/file.php';
 
 		/**
 		 * @var $wp_filesystem WP_Filesystem_Base
@@ -220,7 +230,12 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 
 		if ( ! $wp_filesystem ) {
 			if ( defined( 'PODS_ALT_CACHE_DEBUG' ) && PODS_ALT_CACHE_DEBUG && class_exists( 'WP_Papertrail_API' ) ) {
-				\WP_Papertrail_API::log( array( 'msg' => 'Filesystem not working', '$cache_key' => $cache_key, '$expires' => $expires, '$group' => $group ), str_replace( '::', '\\', __METHOD__ ) );
+				\WP_Papertrail_API::log( array(
+					'msg'        => 'Filesystem not working',
+					'$cache_key' => $cache_key,
+					'$expires'   => $expires,
+					'$group'     => $group,
+				), str_replace( '::', '\\', __METHOD__ ) );
 			}
 
 			return false;
@@ -242,34 +257,43 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 
 		if ( ! $path ) {
 			if ( defined( 'PODS_ALT_CACHE_DEBUG' ) && PODS_ALT_CACHE_DEBUG && class_exists( 'WP_Papertrail_API' ) ) {
-				\WP_Papertrail_API::log( array( 'msg' => 'File path not found', '$path' => $path, '$cache_key' => $cache_key, '$expires' => $expires, '$group' => $group ), str_replace( '::', '\\', __METHOD__ ) );
+				\WP_Papertrail_API::log( array(
+					'msg'        => 'File path not found',
+					'$path'      => $path,
+					'$cache_key' => $cache_key,
+					'$expires'   => $expires,
+					'$group'     => $group,
+				), str_replace( '::', '\\', __METHOD__ ) );
 			}
 
 			return false;
-		} else {
-			$path .= DIRECTORY_SEPARATOR . $md5_file;
 		}
+
+		$path .= DIRECTORY_SEPARATOR . $md5_file;
 
 		if ( '' === $cache_value ) {
 			if ( true === $cache_key ) {
 				return $this->clear();
 			}
 
+			if ( isset( self::$values[ $value_key ] ) ) {
+				unset( self::$values[ $value_key ] );
+			}
+
 			if ( ! $wp_filesystem->is_file( $path ) ) {
-				return false;
+				return true;
 			}
 
 			return $wp_filesystem->delete( $path );
 		}
+
+		self::$values[ $value_key ] = $cache_value;
 
 		$expires_at = 0;
 
 		if ( 0 < (int) $expires ) {
 			$expires_at = time() + (int) $expires;
 		}
-
-		// WPE Compatibility for anonymous file writes
-		$this->wpe_compatibility();
 
 		$contents = pack( 'L', $expires_at ) . PHP_EOL . '<?php exit; ?>' . PHP_EOL . maybe_serialize( $cache_value );
 
@@ -278,9 +302,15 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 		if ( ! $success ) {
 			if ( defined( 'PODS_ALT_CACHE_DEBUG' ) && PODS_ALT_CACHE_DEBUG ) {
 				if ( class_exists( 'WP_Papertrail_API' ) ) {
-					\WP_Papertrail_API::log( array( 'msg' => 'File cannot be written', '$cache_key' => $cache_key, '$expires' => $expires, '$group' => $group, '$path' => $path ), str_replace( '::', '\\', __METHOD__ ) );
+					\WP_Papertrail_API::log( array(
+						'msg'        => 'File cannot be written',
+						'$cache_key' => $cache_key,
+						'$expires'   => $expires,
+						'$group'     => $group,
+						'$path'      => $path,
+					), str_replace( '::', '\\', __METHOD__ ) );
 				} else {
-					echo '<!--' . __CLASS__ . ': File cannot be written (' . $path . ')-->' . "\n";
+					echo '<!--' . esc_html( __CLASS__ ) . ': File cannot be written (' . esc_html( $path ) . ')-->' . "\n";
 				}
 			}
 
@@ -289,9 +319,15 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 
 		if ( defined( 'PODS_ALT_CACHE_DEBUG' ) && PODS_ALT_CACHE_DEBUG ) {
 			if ( class_exists( 'WP_Papertrail_API' ) ) {
-				\WP_Papertrail_API::log( array( 'msg' => 'File written', '$cache_key' => $cache_key, '$expires' => $expires, '$group' => $group, '$path' => $path ), str_replace( '::', '\\', __METHOD__ ) );
+				\WP_Papertrail_API::log( array(
+					'msg'        => 'File written',
+					'$cache_key' => $cache_key,
+					'$expires'   => $expires,
+					'$group'     => $group,
+					'$path'      => $path,
+				), str_replace( '::', '\\', __METHOD__ ) );
 			} else {
-				echo '<!--' . __CLASS__ . ': File written (' . $path . ')-->' . "\n";
+				echo '<!--' . esc_html( __CLASS__ ) . ': File written (' . esc_html( $path ) . ')-->' . "\n";
 			}
 		}
 
@@ -300,13 +336,13 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 	}
 
 	/**
-	 * Clear file cache
-	 *
-	 * @return bool
+	 * {@inheritdoc}
 	 */
 	public function clear() {
 
-		require_once( ABSPATH . 'wp-admin/includes/file.php' );
+		self::$values = array();
+
+		require_once ABSPATH . 'wp-admin/includes/file.php';
 
 		/**
 		 * @var $wp_filesystem WP_Filesystem_Base
@@ -321,10 +357,15 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 			}
 
 			return false;
-		} // Check if directory exists
-		elseif ( ! $wp_filesystem->is_dir( PODS_ALT_FILE_CACHE_DIR ) ) {
+		}
+
+		// Check if directory exists
+		if ( ! $wp_filesystem->is_dir( PODS_ALT_FILE_CACHE_DIR ) ) {
 			if ( defined( 'PODS_ALT_CACHE_DEBUG' ) && PODS_ALT_CACHE_DEBUG && class_exists( 'WP_Papertrail_API' ) ) {
-				\WP_Papertrail_API::log( array( 'msg' => 'Pods cache dir does not exist', 'PODS_ALT_FILE_CACHE_DIR' => PODS_ALT_FILE_CACHE_DIR ), str_replace( '::', '\\', __METHOD__ ) );
+				\WP_Papertrail_API::log( array(
+					'msg'                     => 'Pods cache dir does not exist',
+					'PODS_ALT_FILE_CACHE_DIR' => PODS_ALT_FILE_CACHE_DIR,
+				), str_replace( '::', '\\', __METHOD__ ) );
 			}
 
 			return false;
@@ -334,10 +375,35 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 		$this->delete_files_in_directory( PODS_ALT_FILE_CACHE_DIR );
 
 		if ( defined( 'PODS_ALT_CACHE_DEBUG' ) && PODS_ALT_CACHE_DEBUG && class_exists( 'WP_Papertrail_API' ) ) {
-			\WP_Papertrail_API::log( array( 'msg' => 'Files deleted in Pods cache dir', 'PODS_ALT_FILE_CACHE_DIR' => PODS_ALT_FILE_CACHE_DIR ), str_replace( '::', '\\', __METHOD__ ) );
+			\WP_Papertrail_API::log( array(
+				'msg'                     => 'Files deleted in Pods cache dir',
+				'PODS_ALT_FILE_CACHE_DIR' => PODS_ALT_FILE_CACHE_DIR,
+			), str_replace( '::', '\\', __METHOD__ ) );
 		}
 
 		return true;
+
+	}
+
+	/**
+	 * WPEngine support for anonymous file writes
+	 */
+	public function wpe_compatibility() {
+
+		if ( ! self::$wpe_compatible && defined( 'WPE_APIKEY' ) && ! is_user_logged_in() ) {
+			$wpe_cookie = 'wpe-auth';
+
+			$cookie_value = md5( 'wpe_auth_salty_dog|' . WPE_APIKEY );
+
+			if ( empty( $_COOKIE[ $wpe_cookie ] ) || $_COOKIE[ $wpe_cookie ] !== $cookie_value ) {
+				$expire = 2 * DAY_IN_SECONDS;
+				$expire += time();
+
+				setcookie( $wpe_cookie, $cookie_value, $expire, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
+			}
+
+			self::$wpe_compatible = true;
+		}
 
 	}
 
@@ -353,7 +419,13 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 
 		$path = PODS_ALT_FILE_CACHE_DIR . DIRECTORY_SEPARATOR . trim( $file, DIRECTORY_SEPARATOR );
 
-		require_once( ABSPATH . 'wp-admin/includes/file.php' );
+		$path_dir = $path;
+
+		if ( false !== strpos( $path_dir, '.' ) ) {
+			$path_dir = dirname( $path_dir );
+		}
+
+		require_once ABSPATH . 'wp-admin/includes/file.php';
 
 		/**
 		 * @var $wp_filesystem WP_Filesystem_Base
@@ -368,11 +440,9 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 			}
 
 			$path = false;
-		} elseif ( ! $wp_filesystem->is_dir( dirname( $path ) ) ) {
+		} elseif ( ! $wp_filesystem->is_dir( $path_dir ) ) {
 			if ( $mkdir ) {
-				$directories = explode( DIRECTORY_SEPARATOR, $file );
-
-				array_unshift( $directories, PODS_ALT_FILE_CACHE_DIR );
+				$directories = explode( DIRECTORY_SEPARATOR, $path_dir );
 
 				$dir_path = '';
 
@@ -405,7 +475,7 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 			$directory = PODS_ALT_FILE_CACHE_DIR;
 		}
 
-		require_once( ABSPATH . 'wp-admin/includes/file.php' );
+		require_once ABSPATH . 'wp-admin/includes/file.php';
 
 		/**
 		 * @var $wp_filesystem WP_Filesystem_Base
@@ -416,7 +486,9 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 
 		if ( ! $wp_filesystem ) {
 			if ( defined( 'PODS_ALT_CACHE_DEBUG' ) && PODS_ALT_CACHE_DEBUG && class_exists( 'WP_Papertrail_API' ) ) {
-				\WP_Papertrail_API::log( array( 'msg' => 'Filesystem not working' ), str_replace( '::', '\\', __METHOD__ ) );
+				\WP_Papertrail_API::log( array(
+					'msg' => 'Filesystem not working',
+				), str_replace( '::', '\\', __METHOD__ ) );
 			}
 
 			return;
@@ -424,7 +496,10 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 
 		if ( ! $wp_filesystem->is_dir( $directory ) ) {
 			if ( defined( 'PODS_ALT_CACHE_DEBUG' ) && PODS_ALT_CACHE_DEBUG && class_exists( 'WP_Papertrail_API' ) ) {
-				\WP_Papertrail_API::log( array( 'msg' => 'Directory does not exist', '$directory' => $directory ), str_replace( '::', '\\', __METHOD__ ) );
+				\WP_Papertrail_API::log( array(
+					'msg'        => 'Directory does not exist',
+					'$directory' => $directory,
+				), str_replace( '::', '\\', __METHOD__ ) );
 			}
 
 			return;
@@ -437,7 +512,7 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 			$file_path = $directory . DIRECTORY_SEPARATOR . $file['name'];
 
 			// d = folder, f = file
-			if ( 'd' == $file['type'] ) {
+			if ( 'd' === $file['type'] ) {
 				// Delete folder
 				$this->delete_files_in_directory( $file_path );
 			} else {
@@ -449,10 +524,12 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 				$wp_filesystem->rmdir( $directory );
 
 				if ( defined( 'PODS_ALT_CACHE_DEBUG' ) && PODS_ALT_CACHE_DEBUG && class_exists( 'WP_Papertrail_API' ) ) {
-					\WP_Papertrail_API::log( array( 'msg' => 'Directory removed', '$directory' => $directory ), str_replace( '::', '\\', __METHOD__ ) );
+					\WP_Papertrail_API::log( array(
+						'msg'        => 'Directory removed',
+						'$directory' => $directory,
+					), str_replace( '::', '\\', __METHOD__ ) );
 				}
 			}
-
 		}
 
 	}
