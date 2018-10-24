@@ -11,6 +11,11 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 	public static $wpe_compatible = false;
 
 	/**
+	 * @var array Cached values.
+	 */
+	public static $values = array();
+
+	/**
 	 * {@inheritdoc}
 	 */
 	public function __construct() {
@@ -92,6 +97,12 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 	 */
 	public function get_value( $cache_key, $group = '' ) {
 
+		$value_key = $group . '_' . $cache_key;
+
+		if ( isset( self::$values[ $value_key ] ) ) {
+			return self::$values[ $value_key ];
+		}
+
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 
 		/**
@@ -108,6 +119,8 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 					'$cache_key' => $cache_key,
 					'$group'     => $group,
 				), str_replace( '::', '\\', __METHOD__ ) );
+			} else {
+				echo '<!--' . esc_html( __CLASS__ ) . ': Filesystem not working, cannot get value-->' . "\n";
 			}
 
 			return false;
@@ -141,6 +154,8 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 					'$group'     => $group,
 					'$path'      => $path,
 				), str_replace( '::', '\\', __METHOD__ ) );
+			} else {
+				echo '<!--' . esc_html( __CLASS__ ) . ': Path is not readable (' . esc_html( $path ) . ')-->' . "\n";
 			}
 
 			return null;
@@ -181,6 +196,8 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 			$data = substr( $contents, 20 );
 
 			$data_unserialized = maybe_unserialize( $data );
+
+			self::$values[ $value_key ] = $data_unserialized;
 		}
 
 		return $data_unserialized;
@@ -191,6 +208,16 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 	 * {@inheritdoc}
 	 */
 	public function set_value( $cache_key, $cache_value, $expires = 0, $group = '' ) {
+
+		$value_key = $group . '_' . $cache_key;
+
+		// Check if we've already cached this value.
+		if ( '' !== $cache_value && isset( self::$values[ $value_key ] ) && self::$values[ $value_key ] === $cache_value ) {
+			return true;
+		}
+
+		// WPE Compatibility for anonymous file writes
+		$this->wpe_compatibility();
 
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 
@@ -249,21 +276,24 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 				return $this->clear();
 			}
 
+			if ( isset( self::$values[ $value_key ] ) ) {
+				unset( self::$values[ $value_key ] );
+			}
+
 			if ( ! $wp_filesystem->is_file( $path ) ) {
-				return false;
+				return true;
 			}
 
 			return $wp_filesystem->delete( $path );
 		}
+
+		self::$values[ $value_key ] = $cache_value;
 
 		$expires_at = 0;
 
 		if ( 0 < (int) $expires ) {
 			$expires_at = time() + (int) $expires;
 		}
-
-		// WPE Compatibility for anonymous file writes
-		$this->wpe_compatibility();
 
 		$contents = pack( 'L', $expires_at ) . PHP_EOL . '<?php exit; ?>' . PHP_EOL . maybe_serialize( $cache_value );
 
@@ -309,6 +339,8 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 	 * {@inheritdoc}
 	 */
 	public function clear() {
+
+		self::$values = array();
 
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 
@@ -387,6 +419,12 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 
 		$path = PODS_ALT_FILE_CACHE_DIR . DIRECTORY_SEPARATOR . trim( $file, DIRECTORY_SEPARATOR );
 
+		$path_dir = $path;
+
+		if ( false !== strpos( $path_dir, '.' ) ) {
+			$path_dir = dirname( $path_dir );
+		}
+
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 
 		/**
@@ -402,11 +440,9 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 			}
 
 			$path = false;
-		} elseif ( ! $wp_filesystem->is_dir( dirname( $path ) ) ) {
+		} elseif ( ! $wp_filesystem->is_dir( $path_dir ) ) {
 			if ( $mkdir ) {
-				$directories = explode( DIRECTORY_SEPARATOR, $file );
-
-				array_unshift( $directories, PODS_ALT_FILE_CACHE_DIR );
+				$directories = explode( DIRECTORY_SEPARATOR, $path_dir );
 
 				$dir_path = '';
 
