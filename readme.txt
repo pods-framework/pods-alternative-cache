@@ -55,11 +55,11 @@ Change the path to the File cache folder:
 
 `define( 'PODS_ALT_FILE_CACHE_DIR', 'path/to/folder' ); // Default is 'wp-content/podscache'`
 
-Set MemCached Server host or IP address
+Set Memcached Server host or IP address
 
 `define( 'PODS_ALT_CACHE_MEMCACHED_SERVER', '127.0.0.1' ); // Default is 'localhost'`
 
-Set MemCached Server PORT number
+Set Memcached Server PORT number
 
 `define( 'PODS_ALT_CACHE_MEMCACHED_PORT', 11211 ); // Default is 11211`
 
@@ -77,7 +77,7 @@ Disable Pods Alternative Cache:
 = 2.0.2 - June 2nd, 2017 =
 * Revamped branding assets
 * Fixed php notice
-* Fixed usage of memcached port to be an integer
+* Fixed usage of Memcached port to be an integer
 
 = 2.0.1 - July 13th, 2016 =
 * Fixed cache file/folder deleting bug that wouldn't let Pods clear / preload caches properly
