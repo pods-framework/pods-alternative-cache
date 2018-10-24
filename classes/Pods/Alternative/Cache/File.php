@@ -123,7 +123,7 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 				echo '<!--' . esc_html( __CLASS__ ) . ': Filesystem not working, cannot get value-->' . "\n";
 			}
 
-			return false;
+			return $this->fallback_get( false, $cache_key, $group );
 		}
 
 		$current_blog_id = (string) get_current_blog_id();
@@ -141,7 +141,7 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 		$path = $this->get_path_for_file( $path );
 
 		if ( ! $path ) {
-			return null;
+			return $this->fallback_get( null, $cache_key, $group );
 		}
 
 		$path .= DIRECTORY_SEPARATOR . $md5_file;
@@ -158,7 +158,7 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 				echo '<!--' . esc_html( __CLASS__ ) . ': Path is not readable (' . esc_html( $path ) . ')-->' . "\n";
 			}
 
-			return null;
+			return $this->fallback_get( null, $cache_key, $group );
 		}
 
 		if ( defined( 'PODS_ALT_CACHE_DEBUG' ) && PODS_ALT_CACHE_DEBUG ) {
@@ -180,25 +180,25 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 
 		$expires_at = substr( $contents, 0, 4 );
 
-		$data_unserialized = null;
-
-		if ( false !== $expires_at && ! empty( $expires_at ) ) {
-			$expires_at = unpack( 'L', $expires_at );
-			$expires_at = (int) $expires_at[1];
-
-			if ( 0 < (int) $expires_at && (int) $expires_at < time() ) {
-				// Data has expired, delete it
-				$this->set_value( $cache_key, '' );
-
-				return $data_unserialized;
-			}
-
-			$data = substr( $contents, 20 );
-
-			$data_unserialized = maybe_unserialize( $data );
-
-			self::$values[ $value_key ] = $data_unserialized;
+		if ( false === $expires_at || empty( $expires_at ) ) {
+			return null;
 		}
+
+		$expires_at = unpack( 'L', $expires_at );
+		$expires_at = (int) $expires_at[1];
+
+		if ( 0 < (int) $expires_at && (int) $expires_at < time() ) {
+			// Data has expired, delete it
+			$this->set_value( $cache_key, '' );
+
+			return null;
+		}
+
+		$data = substr( $contents, 20 );
+
+		$data_unserialized = maybe_unserialize( $data );
+
+		self::$values[ $value_key ] = $data_unserialized;
 
 		return $data_unserialized;
 
@@ -238,7 +238,7 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 				), str_replace( '::', '\\', __METHOD__ ) );
 			}
 
-			return false;
+			return $this->fallback_set( false, $cache_key, $cache_value, $group, $expires );
 		}
 
 		$current_blog_id = (string) get_current_blog_id();
@@ -266,7 +266,7 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 				), str_replace( '::', '\\', __METHOD__ ) );
 			}
 
-			return false;
+			return $this->fallback_set( false, $cache_key, $cache_value, $group, $expires );
 		}
 
 		$path .= DIRECTORY_SEPARATOR . $md5_file;
@@ -281,7 +281,7 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 			}
 
 			if ( ! $wp_filesystem->is_file( $path ) ) {
-				return true;
+				return $this->fallback_set( true, $cache_key, $cache_value, $group, $expires );
 			}
 
 			return $wp_filesystem->delete( $path );
@@ -314,7 +314,7 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 				}
 			}
 
-			return false;
+			return $this->fallback_set( false, $cache_key, $cache_value, $group, $expires );
 		}
 
 		if ( defined( 'PODS_ALT_CACHE_DEBUG' ) && PODS_ALT_CACHE_DEBUG ) {
@@ -356,7 +356,7 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 				\WP_Papertrail_API::log( array( 'msg' => 'Filesystem not working' ), str_replace( '::', '\\', __METHOD__ ) );
 			}
 
-			return false;
+			return $this->fallback_clear( false );
 		}
 
 		// Check if directory exists
@@ -368,7 +368,7 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 				), str_replace( '::', '\\', __METHOD__ ) );
 			}
 
-			return false;
+			return $this->fallback_clear( false );
 		}
 
 		// Delete all files in directory
