@@ -6,6 +6,11 @@
 class Pods_Alternative_Cache_Storage {
 
 	/**
+	 * @var array Cached values.
+	 */
+	public static $values = array();
+
+	/**
 	 * Setup storage type object
 	 */
 	public function __construct() {

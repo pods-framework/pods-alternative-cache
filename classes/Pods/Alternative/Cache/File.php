@@ -11,11 +11,6 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 	public static $wpe_compatible = false;
 
 	/**
-	 * @var array Cached values.
-	 */
-	public static $values = array();
-
-	/**
 	 * {@inheritdoc}
 	 */
 	public function __construct() {
