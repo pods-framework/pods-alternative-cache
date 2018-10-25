@@ -108,14 +108,16 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 		WP_Filesystem();
 
 		if ( ! $wp_filesystem ) {
-			if ( defined( 'PODS_ALT_CACHE_DEBUG' ) && PODS_ALT_CACHE_DEBUG && class_exists( 'WP_Papertrail_API' ) ) {
-				\WP_Papertrail_API::log( array(
-					'msg'        => 'Filesystem not working',
-					'$cache_key' => $cache_key,
-					'$group'     => $group,
-				), str_replace( '::', '\\', __METHOD__ ) );
-			} else {
-				echo '<!--' . esc_html( __CLASS__ ) . ': Filesystem not working, cannot get value-->' . "\n";
+			if ( defined( 'PODS_ALT_CACHE_DEBUG' ) && PODS_ALT_CACHE_DEBUG ) {
+				if ( class_exists( 'WP_Papertrail_API' ) ) {
+					\WP_Papertrail_API::log( array(
+						'msg'        => 'Filesystem not working',
+						'$cache_key' => $cache_key,
+						'$group'     => $group,
+					), str_replace( '::', '\\', __METHOD__ ) );
+				} else {
+					echo '<!--' . esc_html( __CLASS__ ) . ': Filesystem not working, cannot get value-->' . "\n";
+				}
 			}
 
 			return $this->fallback_get( false, $cache_key, $group );
@@ -142,15 +144,17 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 		$path .= DIRECTORY_SEPARATOR . $md5_file;
 
 		if ( ! $wp_filesystem->is_readable( $path ) ) {
-			if ( defined( 'PODS_ALT_CACHE_DEBUG' ) && PODS_ALT_CACHE_DEBUG && class_exists( 'WP_Papertrail_API' ) ) {
-				\WP_Papertrail_API::log( array(
-					'msg'        => 'File not readable',
-					'$cache_key' => $cache_key,
-					'$group'     => $group,
-					'$path'      => $path,
-				), str_replace( '::', '\\', __METHOD__ ) );
-			} else {
-				echo '<!--' . esc_html( __CLASS__ ) . ': Path is not readable (' . esc_html( $path ) . ')-->' . "\n";
+			if ( defined( 'PODS_ALT_CACHE_DEBUG' ) && PODS_ALT_CACHE_DEBUG ) {
+				if ( class_exists( 'WP_Papertrail_API' ) ) {
+					\WP_Papertrail_API::log( array(
+						'msg'        => 'File not readable',
+						'$cache_key' => $cache_key,
+						'$group'     => $group,
+						'$path'      => $path,
+					), str_replace( '::', '\\', __METHOD__ ) );
+				} else {
+					echo '<!--' . esc_html( __CLASS__ ) . ': Path is not readable (' . esc_html( $path ) . ')-->' . "\n";
+				}
 			}
 
 			return $this->fallback_get( null, $cache_key, $group );
