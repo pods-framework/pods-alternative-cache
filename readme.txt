@@ -4,7 +4,7 @@ Donate link: https://pods.io/friends-of-pods/
 Tags: pods, cache, wpengine
 Requires at least: 3.8
 Tested up to: 5.0
-Stable tag: 2.0.3
+Stable tag: 2.0.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -67,7 +67,14 @@ Disable Pods Alternative Cache:
 
 `define( 'PODS_ALT_CACHE', false ); // Default is true`
 
+Disable object cache fallback, when File writes fail:
+
+`define( 'PODS_ALT_CACHE_FALLBACK', false ); // Default is true`
+
 == Changelog ==
+
+= 2.0.4 - October 26th, 2018 =
+* Added a new object cache fallback for File storage (default alt cache) so if any writes fail it will save them to the normal object cache; You can disable this by setting `define( 'PODS_ALT_CACHE_FALLBACK', false );`
 
 = 2.0.3 - October 23rd, 2018 =
 * Fixed cases where transients/object cache could be used by Pods before Pods Alt Cache fully loads
