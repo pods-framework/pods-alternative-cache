@@ -103,7 +103,7 @@ class Pods_Alternative_Cache_Storage {
 
 		$fallback = wp_cache_get( $cache_key, $group );
 
-		if ( $fallback !== $value ) {
+		if ( $fallback !== $return ) {
 			$value_key = $group . '_' . $cache_key;
 
 			self::$values[ $value_key ] = $fallback;
