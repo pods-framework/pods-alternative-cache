@@ -73,6 +73,9 @@ Disable object cache fallback, when File writes fail:
 
 == Changelog ==
 
+= 2.0.5 - November 15th, 2018 =
+* Fix PHP notices when handling fallback values
+
 = 2.0.4 - October 26th, 2018 =
 * Added a new object cache fallback for File storage (default alt cache) so if any writes fail it will save them to the normal object cache; You can disable this by setting `define( 'PODS_ALT_CACHE_FALLBACK', false );`
 
