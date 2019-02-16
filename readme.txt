@@ -4,7 +4,7 @@ Donate link: https://pods.io/friends-of-pods/
 Tags: pods, cache, wpengine
 Requires at least: 3.8
 Tested up to: 5.1
-Stable tag: 2.1.0
+Stable tag: 2.0.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -73,7 +73,7 @@ Disable object cache fallback, when File writes fail:
 
 == Changelog ==
 
-= 2.1.0 - TBD =
+= 2.0.6 - TBD =
 * Fixed caching issues with fallback cache
 * Added more tests to improve stability
 
