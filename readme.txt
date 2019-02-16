@@ -74,7 +74,7 @@ Disable object cache fallback, when File writes fail:
 == Changelog ==
 
 = 2.1.0 - TBD =
-* Fixed caching issues with transients disappearing
+* Fixed caching issues with fallback cache
 * Added more tests to improve stability
 
 = 2.0.5 - November 15th, 2018 =
