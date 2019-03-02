@@ -97,11 +97,17 @@ class Pods_Alternative_Cache_Storage {
 			return $return;
 		}
 
-		if ( ! isset( $GLOBALS['wp_object_cache'] ) || ! is_object( $GLOBALS['wp_object_cache'] ) ) {
+		if ( ! isset( $GLOBALS['wp_object_cache'] ) || ! is_object( $GLOBALS['wp_object_cache'] ) || ! wp_using_ext_object_cache() ) {
 			return $return;
 		}
 
-		$fallback = wp_cache_get( $cache_key, $group );
+		$found = false;
+
+		$fallback = wp_cache_get( $cache_key, $group, false, $found );
+
+		if ( ! $found || false === $fallback ) {
+			return $return;
+		}
 
 		if ( $fallback !== $return ) {
 			$value_key = $group . '_' . $cache_key;

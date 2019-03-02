@@ -3,8 +3,8 @@ Contributors: sc0ttkclark
 Donate link: https://pods.io/friends-of-pods/
 Tags: pods, cache, wpengine
 Requires at least: 3.8
-Tested up to: 5.0
-Stable tag: 2.0.5
+Tested up to: 5.1
+Stable tag: 2.0.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -73,27 +73,31 @@ Disable object cache fallback, when File writes fail:
 
 == Changelog ==
 
-= 2.0.5 - November 15th, 2018 =
+= [2.0.6] March 2nd, 2019 =
+* Fixed caching issues with fallback cache
+* Added more tests to improve stability
+
+= [2.0.5] November 15th, 2018 =
 * Fix PHP notices when handling fallback values
 
-= 2.0.4 - October 26th, 2018 =
+= [2.0.4] October 26th, 2018 =
 * Added a new object cache fallback for File storage (default alt cache) so if any writes fail it will save them to the normal object cache; You can disable this by setting `define( 'PODS_ALT_CACHE_FALLBACK', false );`
 
-= 2.0.3 - October 23rd, 2018 =
+= [2.0.3] October 23rd, 2018 =
 * Fixed cases where transients/object cache could be used by Pods before Pods Alt Cache fully loads
 * Updated WP compatibility version
 * PHPCS fixes
 
-= 2.0.2 - June 2nd, 2017 =
+= [2.0.2] June 2nd, 2017 =
 * Revamped branding assets
 * Fixed php notice
 * Fixed usage of Memcached port to be an integer
 
-= 2.0.1 - July 13th, 2016 =
+= [2.0.1] July 13th, 2016 =
 * Fixed cache file/folder deleting bug that wouldn't let Pods clear / preload caches properly
 * Typo fix (props @szepeviktor)
 
-= 2.0 - June 23rd, 2016 =
+= [2.0] June 23rd, 2016 =
 * Added support for a Memcache caching (props @shaer)
 * Added support for WP_Filesystem usage instead of using PHP directly
 * Added additional WPEngine compatibility
@@ -102,5 +106,5 @@ Disable object cache fallback, when File writes fail:
 * File storage now uses md5-based folder structure to avoid issues on sites with a large amount of cached objects to avoid having folders with too many files in them which could cause issues with certain hosts
 * Found a bug? Have a great feature idea? Get on GitHub and tell us about it and we'll get right on it: [github.com/pods-framework/pods-alternative-cache/issues/new](https://github.com/pods-framework/pods-alternative-cache/issues/new)
 
-= 1.0 - April 16th, 2014 =
+= [1.0] April 16th, 2014 =
 * First official release!

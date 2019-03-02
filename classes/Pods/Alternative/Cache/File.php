@@ -108,17 +108,10 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 		WP_Filesystem();
 
 		if ( ! $wp_filesystem ) {
-			if ( defined( 'PODS_ALT_CACHE_DEBUG' ) && PODS_ALT_CACHE_DEBUG ) {
-				if ( class_exists( 'WP_Papertrail_API' ) ) {
-					\WP_Papertrail_API::log( array(
-						'msg'        => 'Filesystem not working',
-						'$cache_key' => $cache_key,
-						'$group'     => $group,
-					), str_replace( '::', '\\', __METHOD__ ) );
-				} else {
-					echo '<!--' . esc_html( __CLASS__ ) . ': Filesystem not working, cannot get value-->' . "\n";
-				}
-			}
+			pods_alternative_cache_log_message( 'Filesystem not working, cannot get value', __METHOD__, array(
+				'$cache_key' => $cache_key,
+				'$group'     => $group,
+			), 'error' );
 
 			return $this->fallback_get( false, $cache_key, $group );
 		}
@@ -144,34 +137,20 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 		$path .= DIRECTORY_SEPARATOR . $md5_file;
 
 		if ( ! $wp_filesystem->is_readable( $path ) ) {
-			if ( defined( 'PODS_ALT_CACHE_DEBUG' ) && PODS_ALT_CACHE_DEBUG ) {
-				if ( class_exists( 'WP_Papertrail_API' ) ) {
-					\WP_Papertrail_API::log( array(
-						'msg'        => 'File not readable',
-						'$cache_key' => $cache_key,
-						'$group'     => $group,
-						'$path'      => $path,
-					), str_replace( '::', '\\', __METHOD__ ) );
-				} else {
-					echo '<!--' . esc_html( __CLASS__ ) . ': Path is not readable (' . esc_html( $path ) . ')-->' . "\n";
-				}
-			}
+			pods_alternative_cache_log_message( 'File path is not readable', __METHOD__, array(
+				'$cache_key' => $cache_key,
+				'$group'     => $group,
+				'$path'      => $path,
+			), 'error' );
 
 			return $this->fallback_get( null, $cache_key, $group );
 		}
 
-		if ( defined( 'PODS_ALT_CACHE_DEBUG' ) && PODS_ALT_CACHE_DEBUG ) {
-			if ( class_exists( 'WP_Papertrail_API' ) ) {
-				\WP_Papertrail_API::log( array(
-					'msg'        => 'File read',
-					'$cache_key' => $cache_key,
-					'$group'     => $group,
-					'$path'      => $path,
-				), str_replace( '::', '\\', __METHOD__ ) );
-			} else {
-				echo '<!--' . esc_html( __CLASS__ ) . ': File read (' . esc_html( $path ) . ')-->' . "\n";
-			}
-		}
+		pods_alternative_cache_log_message( 'File read', __METHOD__, array(
+			'$cache_key' => $cache_key,
+			'$group'     => $group,
+			'$path'      => $path,
+		) );
 
 		// @todo Figure out how to use WP_Filesystem to do fread() on limited byte range
 
@@ -228,14 +207,11 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 		WP_Filesystem();
 
 		if ( ! $wp_filesystem ) {
-			if ( defined( 'PODS_ALT_CACHE_DEBUG' ) && PODS_ALT_CACHE_DEBUG && class_exists( 'WP_Papertrail_API' ) ) {
-				\WP_Papertrail_API::log( array(
-					'msg'        => 'Filesystem not working',
-					'$cache_key' => $cache_key,
-					'$expires'   => $expires,
-					'$group'     => $group,
-				), str_replace( '::', '\\', __METHOD__ ) );
-			}
+			pods_alternative_cache_log_message( 'Filesystem not working', __METHOD__, array(
+				'$cache_key' => $cache_key,
+				'$expires'   => $expires,
+				'$group'     => $group,
+			), 'error' );
 
 			return $this->fallback_set( false, $cache_key, $cache_value, $group, $expires );
 		}
@@ -255,15 +231,12 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 		$path = $this->get_path_for_file( $path, true );
 
 		if ( ! $path ) {
-			if ( defined( 'PODS_ALT_CACHE_DEBUG' ) && PODS_ALT_CACHE_DEBUG && class_exists( 'WP_Papertrail_API' ) ) {
-				\WP_Papertrail_API::log( array(
-					'msg'        => 'File path not found',
-					'$path'      => $path,
-					'$cache_key' => $cache_key,
-					'$expires'   => $expires,
-					'$group'     => $group,
-				), str_replace( '::', '\\', __METHOD__ ) );
-			}
+			pods_alternative_cache_log_message( 'File path not found', __METHOD__, array(
+				'$path'      => $path,
+				'$cache_key' => $cache_key,
+				'$expires'   => $expires,
+				'$group'     => $group,
+			), 'error' );
 
 			return $this->fallback_set( false, $cache_key, $cache_value, $group, $expires );
 		}
@@ -299,36 +272,22 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 		$success = $wp_filesystem->put_contents( $path, $contents, FS_CHMOD_FILE );
 
 		if ( ! $success ) {
-			if ( defined( 'PODS_ALT_CACHE_DEBUG' ) && PODS_ALT_CACHE_DEBUG ) {
-				if ( class_exists( 'WP_Papertrail_API' ) ) {
-					\WP_Papertrail_API::log( array(
-						'msg'        => 'File cannot be written',
-						'$cache_key' => $cache_key,
-						'$expires'   => $expires,
-						'$group'     => $group,
-						'$path'      => $path,
-					), str_replace( '::', '\\', __METHOD__ ) );
-				} else {
-					echo '<!--' . esc_html( __CLASS__ ) . ': File cannot be written (' . esc_html( $path ) . ')-->' . "\n";
-				}
-			}
+			pods_alternative_cache_log_message( 'File cannot be written', __METHOD__, array(
+				'$cache_key' => $cache_key,
+				'$expires'   => $expires,
+				'$group'     => $group,
+				'$path'      => $path,
+			), 'error' );
 
 			return $this->fallback_set( false, $cache_key, $cache_value, $group, $expires );
 		}
 
-		if ( defined( 'PODS_ALT_CACHE_DEBUG' ) && PODS_ALT_CACHE_DEBUG ) {
-			if ( class_exists( 'WP_Papertrail_API' ) ) {
-				\WP_Papertrail_API::log( array(
-					'msg'        => 'File written',
-					'$cache_key' => $cache_key,
-					'$expires'   => $expires,
-					'$group'     => $group,
-					'$path'      => $path,
-				), str_replace( '::', '\\', __METHOD__ ) );
-			} else {
-				echo '<!--' . esc_html( __CLASS__ ) . ': File written (' . esc_html( $path ) . ')-->' . "\n";
-			}
-		}
+		pods_alternative_cache_log_message( 'File written', __METHOD__, array(
+			'$cache_key' => $cache_key,
+			'$expires'   => $expires,
+			'$group'     => $group,
+			'$path'      => $path,
+		) );
 
 		return true;
 
@@ -351,21 +310,16 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 		WP_Filesystem();
 
 		if ( ! $wp_filesystem ) {
-			if ( defined( 'PODS_ALT_CACHE_DEBUG' ) && PODS_ALT_CACHE_DEBUG && class_exists( 'WP_Papertrail_API' ) ) {
-				\WP_Papertrail_API::log( array( 'msg' => 'Filesystem not working' ), str_replace( '::', '\\', __METHOD__ ) );
-			}
+			pods_alternative_cache_log_message( 'Filesystem not working', __METHOD__, array(), 'error' );
 
 			return $this->fallback_clear( false );
 		}
 
 		// Check if directory exists
 		if ( ! $wp_filesystem->is_dir( PODS_ALT_FILE_CACHE_DIR ) ) {
-			if ( defined( 'PODS_ALT_CACHE_DEBUG' ) && PODS_ALT_CACHE_DEBUG && class_exists( 'WP_Papertrail_API' ) ) {
-				\WP_Papertrail_API::log( array(
-					'msg'                     => 'Pods cache dir does not exist',
-					'PODS_ALT_FILE_CACHE_DIR' => PODS_ALT_FILE_CACHE_DIR,
-				), str_replace( '::', '\\', __METHOD__ ) );
-			}
+			pods_alternative_cache_log_message( 'Pods cache dir does not exist', __METHOD__, array(
+				'PODS_ALT_FILE_CACHE_DIR' => PODS_ALT_FILE_CACHE_DIR,
+			), 'error' );
 
 			return $this->fallback_clear( false );
 		}
@@ -373,12 +327,9 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 		// Delete all files in directory
 		$this->delete_files_in_directory( PODS_ALT_FILE_CACHE_DIR );
 
-		if ( defined( 'PODS_ALT_CACHE_DEBUG' ) && PODS_ALT_CACHE_DEBUG && class_exists( 'WP_Papertrail_API' ) ) {
-			\WP_Papertrail_API::log( array(
-				'msg'                     => 'Files deleted in Pods cache dir',
-				'PODS_ALT_FILE_CACHE_DIR' => PODS_ALT_FILE_CACHE_DIR,
-			), str_replace( '::', '\\', __METHOD__ ) );
-		}
+		pods_alternative_cache_log_message( 'Files deleted in Pods cache dir', __METHOD__, array(
+			'PODS_ALT_FILE_CACHE_DIR' => PODS_ALT_FILE_CACHE_DIR,
+		) );
 
 		return true;
 
@@ -434,9 +385,11 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 		WP_Filesystem();
 
 		if ( ! $wp_filesystem ) {
-			if ( defined( 'PODS_ALT_CACHE_DEBUG' ) && PODS_ALT_CACHE_DEBUG && class_exists( 'WP_Papertrail_API' ) ) {
-				\WP_Papertrail_API::log( array( 'msg' => 'Filesystem not working' ), str_replace( '::', '\\', __METHOD__ ) );
-			}
+			pods_alternative_cache_log_message( 'Filesystem not working', __METHOD__, array(
+				'$file'     => $file,
+				'$mkdir'    => $mkdir,
+				'$path_dir' => $path_dir,
+			), 'error' );
 
 			$path = false;
 		} elseif ( ! $wp_filesystem->is_dir( $path_dir ) ) {
@@ -484,22 +437,17 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 		WP_Filesystem();
 
 		if ( ! $wp_filesystem ) {
-			if ( defined( 'PODS_ALT_CACHE_DEBUG' ) && PODS_ALT_CACHE_DEBUG && class_exists( 'WP_Papertrail_API' ) ) {
-				\WP_Papertrail_API::log( array(
-					'msg' => 'Filesystem not working',
-				), str_replace( '::', '\\', __METHOD__ ) );
-			}
+			pods_alternative_cache_log_message( 'Filesystem not working', __METHOD__, array(
+				'$directory' => $directory,
+			), 'error' );
 
 			return;
 		}
 
 		if ( ! $wp_filesystem->is_dir( $directory ) ) {
-			if ( defined( 'PODS_ALT_CACHE_DEBUG' ) && PODS_ALT_CACHE_DEBUG && class_exists( 'WP_Papertrail_API' ) ) {
-				\WP_Papertrail_API::log( array(
-					'msg'        => 'Directory does not exist',
-					'$directory' => $directory,
-				), str_replace( '::', '\\', __METHOD__ ) );
-			}
+			pods_alternative_cache_log_message( 'Directory does not exist', __METHOD__, array(
+				'$directory' => $directory,
+			), 'error' );
 
 			return;
 		}
@@ -522,12 +470,9 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 			if ( PODS_ALT_FILE_CACHE_DIR !== $directory ) {
 				$wp_filesystem->rmdir( $directory );
 
-				if ( defined( 'PODS_ALT_CACHE_DEBUG' ) && PODS_ALT_CACHE_DEBUG && class_exists( 'WP_Papertrail_API' ) ) {
-					\WP_Papertrail_API::log( array(
-						'msg'        => 'Directory removed',
-						'$directory' => $directory,
-					), str_replace( '::', '\\', __METHOD__ ) );
-				}
+				pods_alternative_cache_log_message( 'Directory removed', __METHOD__, array(
+					'$directory' => $directory,
+				) );
 			}
 		}
 
