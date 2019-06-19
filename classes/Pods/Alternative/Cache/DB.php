@@ -133,7 +133,7 @@ class Pods_Alternative_Cache_DB extends Pods_Alternative_Cache_Storage {
 			$sql = "
 				REPLACE INTO `{$table}`
 				( `cache_key`, `cache_group`, `cache_value`, `expiration` )
-				VALUES ( %s, %s, %s, %d, %d )
+				VALUES ( %s, %s, %s, %d)
 			";
 
 			$wpdb->query( $wpdb->prepare( $sql, $cache_key, $group, $cache_value, $expires_at ) );
