@@ -324,3 +324,41 @@ function pods_alternative_cache_test_anon() {
 }
 
 add_action( 'init', 'pods_alternative_cache_test_anon' );
+
+/**
+ * Register add-on with Pods Freemius connection.
+ */
+function pods_alternative_cache_freemius() {
+	try {
+		fs_dynamic_init( [
+			'id'               => '5348',
+			'slug'             => 'pods-alternative-cache',
+			'type'             => 'plugin',
+			'public_key'       => 'pk_c51e7ff51e827ecaddb23664c050d',
+			'is_premium'       => false,
+			'has_paid_plans'   => false,
+			'is_org_compliant' => true,
+			'parent'           => [
+				'id'         => '5347',
+				'slug'       => 'pods',
+				'public_key' => 'pk_737105490825babae220297e18920',
+				'name'       => 'Pods',
+			],
+			'menu'             => [
+				'slug'        => 'pods-settings',
+				'contact'     => false,
+				'support'     => false,
+				'affiliation' => false,
+				'account'     => true,
+				'pricing'     => false,
+				'addons'      => true,
+				'parent'      => [
+					'slug' => 'pods',
+				],
+			],
+		] );
+	} catch ( \Exception $exception ) {
+		return;
+	}
+}
+add_action( 'pods_freemius_init', 'pods_alternative_cache_freemius' );
