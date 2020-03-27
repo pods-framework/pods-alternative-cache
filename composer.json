@@ -1,35 +1,40 @@
 {
-    "name": "pods-framework/pods-alternative-cache",
-    "description": "File-based or database-based caching solution for for hosts that have limitations on object caching.",
-    "type": "wordpress-plugin",
-    "keywords": ["pods", "wordpress", "cache", "wpengine"],
-    "homepage": "https://github.com/pods-framework/pods-alternative-cache",
-    "license": "GPL-2.0",
-    "authors": [
-        {
-            "name": "Scott Kingsley Clark",
-            "email": "lol@scottkclark.com",
-            "homepage": "http://scottkclark.com",
-            "role" : "Lead Developer"
-        },
-        {
-            "name": "Pods Framework Team",
-            "email": "contact@pods.io",
-            "homepage": "http://pods.io/"
-        },
-        {
-            "name": "Mohamed El-Shaer",
-            "email": "mohamed@shaer.me",
-            "homepage": "http://shaer.me/"
-        }
-    ],
-    "support": {
-        "issues": "https://github.com/pods-framework/pods-alternative-cache/issues",
-        "source": "https://github.com/pods-framework/pods-alternative-cache"
+  "name": "pods-framework/pods-alternative-cache",
+  "description": "File-based or database-based caching solution for for hosts that have limitations on object caching.",
+  "type": "wordpress-plugin",
+  "keywords": [
+    "pods",
+    "wordpress",
+    "cache",
+    "wpengine"
+  ],
+  "homepage": "https://github.com/pods-framework/pods-alternative-cache",
+  "license": "GPL-2.0",
+  "authors": [
+    {
+      "name": "Scott Kingsley Clark",
+      "email": "lol@scottkclark.com",
+      "homepage": "http://scottkclark.com",
+      "role": "Lead Developer"
     },
-    "require": {
-        "php": ">=5.3",
-        "composer/installers": "~1.0",
-        "wpackagist-plugin/pods": ">=2.4"
+    {
+      "name": "Pods Framework Team",
+      "email": "contact@pods.io",
+      "homepage": "http://pods.io/"
+    },
+    {
+      "name": "Mohamed El-Shaer",
+      "email": "mohamed@shaer.me",
+      "homepage": "http://shaer.me/"
     }
+  ],
+  "support": {
+    "issues": "https://github.com/pods-framework/pods-alternative-cache/issues",
+    "source": "https://github.com/pods-framework/pods-alternative-cache"
+  },
+  "require": {
+    "php": ">=5.4",
+    "composer/installers": "~1.0",
+    "wpackagist-plugin/pods": ">=2.4"
+  }
 }

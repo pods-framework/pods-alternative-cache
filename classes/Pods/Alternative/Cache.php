@@ -6,24 +6,22 @@
 class Pods_Alternative_Cache {
 
 	/**
+	 * Storage types available and their associated classes
+	 *
+	 * @var array
+	 */
+	public static $storage_types = [
+		'file'      => 'Pods_Alternative_Cache_File',
+		'db'        => 'Pods_Alternative_Cache_DB',
+		'memcached' => 'Pods_Alternative_Cache_Memcached',
+	];
+	/**
 	 * Storage object in use
 	 *
 	 * @var Pods_Alternative_Cache_Storage|Pods_Alternative_Cache_File|Pods_Alternative_Cache_DB
 	 */
 	public $storage;
-
-	/**
-	 * Storage types available and their associated classes
-	 *
-	 * @var array
-	 */
-	public static $storage_types = array(
-		'file'      => 'Pods_Alternative_Cache_File',
-		'db'        => 'Pods_Alternative_Cache_DB',
-		'memcached' => 'Pods_Alternative_Cache_Memcached',
-	);
-
-	public $last     = '';
+	public $last = '';
 	public $last_key = '';
 
 	/**
@@ -32,16 +30,14 @@ class Pods_Alternative_Cache {
 	 * @param string $storage Storage type
 	 */
 	public function __construct( $storage = 'file' ) {
-
 		// Filter storage types to allow for additional ones to be added
 		self::$storage_types = apply_filters( 'pods_alternative_cache_storage_types', self::$storage_types, $storage );
 
 		$this->storage = $this->load_storage_type( $storage );
 
-		add_filter( 'pods_view_cache_alt_get', array( $this, 'has_value' ), 10, 5 );
-		add_filter( 'pods_view_cache_alt_get_value', array( $this, 'get_value' ), 10, 5 );
-		add_filter( 'pods_view_cache_alt_set', array( $this, 'set_check' ), 10, 7 );
-
+		add_filter( 'pods_view_cache_alt_get', [ $this, 'has_value' ], 10, 5 );
+		add_filter( 'pods_view_cache_alt_get_value', [ $this, 'get_value' ], 10, 5 );
+		add_filter( 'pods_view_cache_alt_set', [ $this, 'set_check' ], 10, 7 );
 	}
 
 	/**
@@ -52,7 +48,6 @@ class Pods_Alternative_Cache {
 	 * @return Pods_Alternative_Cache_Storage|Pods_Alternative_Cache_File|Pods_Alternative_Cache_DB
 	 */
 	public function load_storage_type( $storage ) {
-
 		// If storage type not set, default to file storage
 		if ( ! isset( self::$storage_types[ $storage ] ) ) {
 			$storage = 'file';
@@ -71,7 +66,6 @@ class Pods_Alternative_Cache {
 		}
 
 		return new $class();
-
 	}
 
 	/**
@@ -80,7 +74,6 @@ class Pods_Alternative_Cache {
 	 * @param boolean $network_wide Whether the action is network-wide
 	 */
 	public function activate( $network_wide = false ) {
-
 		wp_cache_flush();
 
 		foreach ( self::$storage_types as $storage => $class ) {// If storage type not set, default to file storage
@@ -94,7 +87,6 @@ class Pods_Alternative_Cache {
 		}
 
 		$this->storage->activate( $network_wide );
-
 	}
 
 	/**
@@ -103,11 +95,9 @@ class Pods_Alternative_Cache {
 	 * @param boolean $network_wide Whether the action is network-wide
 	 */
 	public function deactivate( $network_wide = false ) {
-
 		wp_cache_flush();
 
 		$this->storage->deactivate( $network_wide );
-
 	}
 
 	/**
@@ -122,7 +112,6 @@ class Pods_Alternative_Cache {
 	 * @return bool
 	 */
 	public function has_value( $_false, $cache_mode, $cache_key, $original_key, $group ) {
-
 		if ( ! $_false && $this->is_enabled( $cache_mode, $cache_key ) ) {
 			if ( current_user_can( 'manage_options' ) && isset( $_GET['pods_debug_cache'] ) && ( '1' === $_GET['pods_debug_cache'] || $cache_mode === $_GET['pods_debug_cache'] ) ) {
 				$_false = true;
@@ -139,7 +128,33 @@ class Pods_Alternative_Cache {
 		}
 
 		return $_false;
+	}
 
+	/**
+	 * Determine if Alt Cache is enabled and covered for the cache mode
+	 *
+	 * @param string $cache_mode
+	 * @param string $cache_key
+	 *
+	 * @return bool
+	 */
+	public function is_enabled( $cache_mode, $cache_key ) {
+		$supported_modes = [
+			'transient',
+			'cache',
+		];
+
+		$supported_modes = apply_filters( 'pods_alternative_cache_supported_modes', $supported_modes, $cache_mode, $cache_key );
+
+		$is_enabled = true;
+
+		if ( ! PODS_ALT_CACHE ) {
+			$is_enabled = false;
+		} elseif ( ! in_array( $cache_mode, $supported_modes, true ) ) {
+			$is_enabled = false;
+		}
+
+		return $is_enabled;
 	}
 
 	/**
@@ -154,7 +169,6 @@ class Pods_Alternative_Cache {
 	 * @return mixed|null
 	 */
 	public function get_value( $value, $cache_mode, $cache_key, $original_key, $group ) {
-
 		if ( $this->is_enabled( $cache_mode, $cache_key ) ) {
 			if ( current_user_can( 'manage_options' ) && isset( $_GET['pods_debug_cache'] ) && ( '1' === $_GET['pods_debug_cache'] || $cache_mode === $_GET['pods_debug_cache'] ) ) {
 				$value = null;
@@ -166,7 +180,6 @@ class Pods_Alternative_Cache {
 		}
 
 		return $value;
-
 	}
 
 	/**
@@ -183,42 +196,11 @@ class Pods_Alternative_Cache {
 	 * @return bool
 	 */
 	public function set_check( $_false, $cache_mode, $cache_key, $original_key, $value, $expires, $group ) {
-
 		if ( ! $_false && $this->is_enabled( $cache_mode, $cache_key ) ) {
 			$_false = $this->storage->set_value( $cache_key, $value, $expires, $group );
 		}
 
 		return $_false;
-
-	}
-
-	/**
-	 * Determine if Alt Cache is enabled and covered for the cache mode
-	 *
-	 * @param string $cache_mode
-	 * @param string $cache_key
-	 *
-	 * @return bool
-	 */
-	public function is_enabled( $cache_mode, $cache_key ) {
-
-		$supported_modes = array(
-			'transient',
-			'cache',
-		);
-
-		$supported_modes = apply_filters( 'pods_alternative_cache_supported_modes', $supported_modes, $cache_mode, $cache_key );
-
-		$is_enabled = true;
-
-		if ( ! PODS_ALT_CACHE ) {
-			$is_enabled = false;
-		} elseif ( ! in_array( $cache_mode, $supported_modes, true ) ) {
-			$is_enabled = false;
-		}
-
-		return $is_enabled;
-
 	}
 
 }

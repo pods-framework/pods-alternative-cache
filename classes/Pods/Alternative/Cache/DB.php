@@ -14,10 +14,9 @@ class Pods_Alternative_Cache_DB extends Pods_Alternative_Cache_Storage {
 	 * {@inheritdoc}
 	 */
 	public function activate( $network_wide = false ) {
-
 		$table = $this->table();
 
-		$tables = array(
+		$tables = [
 			"
 			CREATE TABLE `{$table}` (
 				`cache_key` VARCHAR(255) NOT NULL,
@@ -27,21 +26,33 @@ class Pods_Alternative_Cache_DB extends Pods_Alternative_Cache_Storage {
 				PRIMARY KEY (`cache_key`),
 				UNIQUE INDEX `cache_key_group` (`cache_key`, `cache_group`)
 			)
-		"
-		);
+		",
+		];
 
 		// Create / alter table handling
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 
 		dbDelta( $tables );
+	}
 
+	/**
+	 * Get the table name with prefix
+	 *
+	 * @return string
+	 */
+	public function table() {
+		/**
+		 * @var $wpdb wpdb
+		 */
+		global $wpdb;
+
+		return $wpdb->prefix . self::TABLE;
 	}
 
 	/**
 	 * {@inheritdoc}
 	 */
 	public function deactivate( $network_wide = false ) {
-
 		/**
 		 * @var $wpdb wpdb
 		 */
@@ -50,14 +61,12 @@ class Pods_Alternative_Cache_DB extends Pods_Alternative_Cache_Storage {
 		$table = $this->table();
 
 		$wpdb->query( "DROP TABLE IF EXISTS `{$table}`" );
-
 	}
 
 	/**
 	 * {@inheritdoc}
 	 */
 	public function get_value( $cache_key, $group = '' ) {
-
 		/**
 		 * @var $wpdb wpdb
 		 */
@@ -92,14 +101,28 @@ class Pods_Alternative_Cache_DB extends Pods_Alternative_Cache_Storage {
 		}
 
 		return $cache_value;
+	}
 
+	/**
+	 * Get the cache key with max char handling
+	 *
+	 * @param mixed $cache_key
+	 *
+	 * @return mixed
+	 */
+	public function cache_key_limited( $cache_key ) {
+		// If string is larger than our column, md5 the portion that goes over
+		if ( ! is_bool( $cache_key ) && 255 < strlen( $cache_key ) ) {
+			$cache_key = substr( $cache_key, 0, 222 ) . md5( substr( $cache_key, 222 ) );
+		}
+
+		return $cache_key;
 	}
 
 	/**
 	 * {@inheritdoc}
 	 */
 	public function set_value( $cache_key, $cache_value, $expires = 0, $group = '' ) {
-
 		/**
 		 * @var $wpdb wpdb
 		 */
@@ -140,14 +163,12 @@ class Pods_Alternative_Cache_DB extends Pods_Alternative_Cache_Storage {
 		}
 
 		return true;
-
 	}
 
 	/**
 	 * {@inheritdoc}
 	 */
 	public function clear() {
-
 		/**
 		 * @var $wpdb wpdb
 		 */
@@ -158,41 +179,6 @@ class Pods_Alternative_Cache_DB extends Pods_Alternative_Cache_Storage {
 		$wpdb->query( "TRUNCATE `{$table}`" );
 
 		return true;
-
-	}
-
-	/**
-	 * Get the table name with prefix
-	 *
-	 * @return string
-	 */
-	public function table() {
-
-		/**
-		 * @var $wpdb wpdb
-		 */
-		global $wpdb;
-
-		return $wpdb->prefix . self::TABLE;
-
-	}
-
-	/**
-	 * Get the cache key with max char handling
-	 *
-	 * @param mixed $cache_key
-	 *
-	 * @return mixed
-	 */
-	public function cache_key_limited( $cache_key ) {
-
-		// If string is larger than our column, md5 the portion that goes over
-		if ( ! is_bool( $cache_key ) && 255 < strlen( $cache_key ) ) {
-			$cache_key = substr( $cache_key, 0, 222 ) . md5( substr( $cache_key, 222 ) );
-		}
-
-		return $cache_key;
-
 	}
 
 }

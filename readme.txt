@@ -74,6 +74,10 @@ Disable object cache fallback, when File writes fail:
 
 == Changelog ==
 
+= [2.0.8] March 26th 2020 =
+* Added: Now requiring PHP 5.4+
+* Added: Freemius support when running Pods 2.7.17
+
 = [2.0.7] March 2nd 2020 =
 * Fix DB-based storage value sets (props @Danone89)
 * Tested against WordPress 5.4 for compatibility
