@@ -3,9 +3,9 @@ Contributors: sc0ttkclark
 Donate link: https://pods.io/friends-of-pods/
 Tags: pods, cache, wpengine
 Requires at least: 3.8
-Tested up to: 5.4
-Requires PHP: 5.4
-Stable tag: 2.0.7
+Tested up to: 5.5
+Requires PHP: 5.6
+Stable tag: 2.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -20,6 +20,8 @@ Pods Alternative Cache is a great addition to a site already utilizing Object Ca
 This plugin requires the [Pods Framework](http://wordpress.org/plugins/pods/) version 2.4 or later to run.
 
 For more information on how to use this plugin, see [https://pods.io/2014/04/16/introducing-pods-alternative-cache/](https://pods.io/2014/04/16/introducing-pods-alternative-cache/).
+
+Also check out the FAQ below for more details on customizing the configuration through your wp-config.php file.
 
 == Installation ==
 
@@ -74,9 +76,10 @@ Disable object cache fallback, when File writes fail:
 
 == Changelog ==
 
-= [2.0.8] March 26th 2020 =
-* Added: Now requiring PHP 5.4+
-* Added: Freemius support when running Pods 2.7.17
+= [2.1.0] July 14th 2020 =
+* Added: Now requiring PHP 5.6+
+* Added: Freemius support when running Pods 2.7.17+
+* Fixed: SiteGround and other sites that use the domain name in the path no longer cause directory/file writes to fail.
 
 = [2.0.7] March 2nd 2020 =
 * Fix DB-based storage value sets (props @Danone89)
