@@ -281,7 +281,7 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 
 		$path_dir = $path;
 
-		if ( false !== strpos( $path_dir, '.' ) ) {
+		if ( false !== strpos( $path_dir, '.php' ) ) {
 			$path_dir = dirname( $path_dir );
 		}
 
@@ -310,8 +310,19 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 				foreach ( $directories as $directory ) {
 					$dir_path .= DIRECTORY_SEPARATOR . $directory;
 
-					if ( ! $wp_filesystem->is_dir( $dir_path ) && ( ! defined( 'FS_CHMOD_DIR' ) || ! $wp_filesystem->mkdir( $dir_path, FS_CHMOD_DIR ) ) ) {
+					if ( $wp_filesystem->is_dir( $dir_path ) ) {
+						continue;
+					}
+
+					if ( ! defined( 'FS_CHMOD_DIR' ) || ! $wp_filesystem->mkdir( $dir_path, FS_CHMOD_DIR ) ) {
 						$path = false;
+
+						pods_alternative_cache_log_message( 'Directory cannot be created and is not readable', __METHOD__, [
+							'$dir_path'    => $dir_path,
+							'$directory'   => $directory,
+							'$directories' => $directories,
+							'$path_dir'    => $path_dir,
+						], 'error' );
 
 						break;
 					}
