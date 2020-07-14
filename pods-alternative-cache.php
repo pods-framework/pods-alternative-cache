@@ -38,14 +38,14 @@ function pods_alternative_cache_init() {
 
 	$cache_type = 'file';
 
-	if ( in_array( PODS_ALT_CACHE_TYPE, array( 'file', 'db', 'memcached' ), true ) ) {
+	if ( in_array( PODS_ALT_CACHE_TYPE, [ 'file', 'db', 'memcached' ], true ) ) {
 		$cache_type = PODS_ALT_CACHE_TYPE;
 	}
 
 	$pods_alternative_cache = new Pods_Alternative_Cache( $cache_type );
 
-	register_activation_hook( __FILE__, array( $pods_alternative_cache, 'activate' ) );
-	register_deactivation_hook( __FILE__, array( $pods_alternative_cache, 'deactivate' ) );
+	register_activation_hook( __FILE__, [ $pods_alternative_cache, 'activate' ] );
+	register_deactivation_hook( __FILE__, [ $pods_alternative_cache, 'deactivate' ] );
 }
 
 add_action( 'plugins_loaded', 'pods_alternative_cache_init', 5 );
@@ -67,15 +67,15 @@ function pods_alternative_cache_is_debug_enabled() {
  * @param array  $args    List of arguments to send to the logger.
  * @param string $mode    Message mode.
  */
-function pods_alternative_cache_log_message( $message, $method, $args = array(), $mode = 'notice' ) {
+function pods_alternative_cache_log_message( $message, $method, $args = [], $mode = 'notice' ) {
 	if ( ! defined( 'PODS_ALT_CACHE_DEBUG' ) || ! PODS_ALT_CACHE_DEBUG ) {
 		return;
 	}
 
 	if ( class_exists( 'WP_Papertrail_API' ) ) {
-		$log_message = array(
+		$log_message = [
 			'msg' => $message,
-		);
+		];
 
 		$log_message = array_merge( $log_message, $args );
 
@@ -131,6 +131,15 @@ function pods_alternative_cache_test_anon() {
 		pods_alternative_cache_log_message( 'Flushed cache', __FUNCTION__ );
 	}
 
+	/**
+	 * @var $wp_filesystem WP_Filesystem_Base
+	 */
+	global $wp_filesystem;
+
+	WP_Filesystem();
+
+	$filesystem_path = PODS_ALT_FILE_CACHE_DIR;
+
 	$rand = (int) time();
 
 	$persist_check = '';
@@ -143,73 +152,85 @@ function pods_alternative_cache_test_anon() {
 	$cache_group       = 'pods-alt-cache';
 	$cache_persist_key = 'pods-alt-cache-persist';
 
-	$stats = array(
+	$stats = [
 		'rand'           => $rand,
-		'non-persistent' => array(
-			'pods-alt-cache'           => array(
+		'non-persistent' => [
+			'pods-alt-cache'           => [
 				'before_set' => null,
 				'set'        => null,
 				'after_set'  => null,
 				'pass'       => false,
-			),
-			'pods-alt-cache-transient' => array(
+			],
+			'pods-alt-cache-transient' => [
 				'before_set' => null,
 				'set'        => null,
 				'after_set'  => null,
 				'pass'       => false,
-			),
-			'pods-alt-cache-option'    => array(
+			],
+			'pods-alt-cache-option'    => [
 				'before_set' => null,
 				'set'        => null,
 				'after_set'  => null,
 				'pass'       => false,
-			),
-			'wp-object-cache'          => array(
+			],
+			'wp-object-cache'          => [
 				'before_set' => null,
 				'set'        => null,
 				'after_set'  => null,
 				'pass'       => false,
-			),
-			'wp-transient-cache'       => array(
+			],
+			'wp-transient-cache'       => [
 				'before_set' => null,
 				'set'        => null,
 				'after_set'  => null,
 				'pass'       => false,
-			),
-		),
-		'persistent'     => array(
-			'pods-alt-cache'           => array(
+			],
+		],
+		'persistent'     => [
+			'pods-alt-cache'           => [
 				'before_set' => null,
 				'set'        => null,
 				'after_set'  => null,
 				'pass'       => false,
-			),
-			'pods-alt-cache-transient' => array(
+			],
+			'pods-alt-cache-transient' => [
 				'before_set' => null,
 				'set'        => null,
 				'after_set'  => null,
 				'pass'       => false,
-			),
-			'pods-alt-cache-option'    => array(
+			],
+			'pods-alt-cache-option'    => [
 				'before_set' => null,
 				'set'        => null,
 				'after_set'  => null,
 				'pass'       => false,
-			),
-			'wp-object-cache'          => array(
+			],
+			'wp-object-cache'          => [
 				'before_set' => null,
 				'set'        => null,
 				'after_set'  => null,
 				'pass'       => false,
-			),
-			'wp-transient-cache'       => array(
+			],
+			'wp-transient-cache'       => [
 				'before_set' => null,
 				'set'        => null,
 				'after_set'  => null,
 				'pass'       => false,
-			),
-		),
-	);
+			],
+			'pods-wp-filesystem'       => [
+				'before_set' => null,
+				'set'        => null,
+				'after_set'  => null,
+				'pass'       => false,
+			],
+			'wp-filesystem'            => [
+				'before_set' => null,
+				'set'        => null,
+				'after_set'  => null,
+				'pass'       => false,
+			],
+		],
+	];
 
 	foreach ( $stats as $persist_type => $persist_stats ) {
 		if ( 'rand' === $persist_type ) {
@@ -271,6 +292,22 @@ function pods_alternative_cache_test_anon() {
 				if ( $value ) {
 					$set = set_transient( $key, $value, $expiration );
 				}
+			} elseif ( 'pods-wp-filesystem' === $cache_type ) {
+				$path = $filesystem_path . '/test-' . sanitize_key( $key ) . '.php';
+
+				$before_set = $wp_filesystem->get_contents( $path );
+
+				if ( $value ) {
+					$set = $wp_filesystem->put_contents( $path, $value, FS_CHMOD_FILE );
+				}
+			} elseif ( 'wp-filesystem' === $cache_type ) {
+				$path = dirname( $filesystem_path ) . '/test-' . sanitize_key( $key ) . '.php';
+
+				$before_set = $wp_filesystem->get_contents( $path );
+
+				if ( $value ) {
+					$set = $wp_filesystem->put_contents( $path, $value, FS_CHMOD_FILE );
+				}
 			}
 
 			if ( is_numeric( $before_set ) ) {
@@ -292,6 +329,14 @@ function pods_alternative_cache_test_anon() {
 				$after_set = wp_cache_get( $key, $cache_group );
 			} elseif ( 'wp-transient-cache' === $cache_type ) {
 				$after_set = get_transient( $key );
+			} elseif ( 'pods-wp-filesystem' === $cache_type ) {
+				$path = $filesystem_path . '/test-' . sanitize_key( $key ) . '.php';
+
+				$after_set = $wp_filesystem->get_contents( $path );
+			} elseif ( 'wp-filesystem' === $cache_type ) {
+				$path = dirname( $filesystem_path ) . '/test-' . sanitize_key( $key ) . '.php';
+
+				$after_set = $wp_filesystem->get_contents( $path );
 			}
 
 			if ( is_numeric( $after_set ) ) {
@@ -304,11 +349,11 @@ function pods_alternative_cache_test_anon() {
 				if ( $value === $after_set ) {
 					$stats[ $persist_type ][ $cache_type ]['pass'] = true;
 
-					pods_alternative_cache_log_message( $cache_name . ' worked!', __FUNCTION__, array(), 'success' );
+					pods_alternative_cache_log_message( $cache_name . ' worked!', __FUNCTION__, [], 'success' );
 				} else {
 					$stats[ $persist_type ][ $cache_type ]['pass'] = false;
 
-					pods_alternative_cache_log_message( $cache_name . ' failed!', __FUNCTION__, array(), 'error' );
+					pods_alternative_cache_log_message( $cache_name . ' failed!', __FUNCTION__, [], 'error' );
 				}
 			} else {
 				pods_alternative_cache_log_message( $cache_name . ' persist check', __FUNCTION__ );
