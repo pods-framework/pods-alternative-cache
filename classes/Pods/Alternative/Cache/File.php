@@ -134,10 +134,10 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 
 			// d = folder, f = file
 			if ( 'd' === $file['type'] ) {
-				// Delete folder
-				$this->delete_files_in_directory( $file_path );
+				// Delete folder.
+				$wp_filesystem->delete( $file_path, true, $file['type'] );
 			} else {
-				// Delete file
+				// Delete file.
 				$wp_filesystem->delete( $file_path );
 			}
 
