@@ -1,11 +1,11 @@
 === Pods Alternative Cache ===
 Contributors: sc0ttkclark
-Donate link: https://pods.io/friends-of-pods/
+Donate link: https://friends.pods.io/
 Tags: pods, cache, wpengine
 Requires at least: 3.8
-Tested up to: 5.8
+Tested up to: 5.9
 Requires PHP: 5.6
-Stable tag: 2.1.2
+Stable tag: 2.1.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -75,6 +75,10 @@ Disable object cache fallback, when File writes fail:
 `define( 'PODS_ALT_CACHE_FALLBACK', false ); // Default is true`
 
 == Changelog ==
+
+= [2.1.3] March 1st, 2022 =
+* Fixed: Ensure that the podscache file directory is excluded from search engine indexing and deny direct browser access on Apache environments.
+* Fixed: Help resolve potential PHP warnings on certain setups when looking to see if a folder exists and getting files from it.
 
 = [2.1.2] September 4th, 2021 =
 * Fixed: Now compatible with PHP 8.0+

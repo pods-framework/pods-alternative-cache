@@ -16,15 +16,34 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 	public function __construct() {
 		parent::__construct();
 
-		// Set cache directory path
+		// Set cache directory path.
 		if ( ! defined( 'PODS_ALT_FILE_CACHE_DIR' ) ) {
 			define( 'PODS_ALT_FILE_CACHE_DIR', WP_CONTENT_DIR . DIRECTORY_SEPARATOR . 'podscache' );
 		}
 
-		// Tell Pods 2.4.1+ that we can prime the Pods cache after flushing it
+		// Tell Pods 2.4.1+ that we can prime the Pods cache after flushing it.
 		if ( ! defined( 'PODS_PRELOAD_CONFIG_AFTER_FLUSH' ) ) {
 			define( 'PODS_PRELOAD_CONFIG_AFTER_FLUSH', true );
 		}
+
+		add_filter( 'robots_txt', [ $this, 'robots_txt' ] );
+	}
+
+	/**
+	 * Filter the robots.txt contents and add the podscache directory to the list of disallowed options.
+	 *
+	 * @since 2.1.3
+	 *
+	 * @param string $robots_txt The robots.txt contents.
+	 *
+	 * @return string The robots.txt contents.
+	 */
+	public function robots_txt( $robots_txt ) {
+		$podscache_path = str_replace( ABSPATH, '', PODS_ALT_FILE_CACHE_DIR );
+		$podscache_path = str_replace( DIRECTORY_SEPARATOR, '/', $podscache_path );
+		$podscache_path = trim( $podscache_path, '/' );
+
+		return $robots_txt . "\n" . 'Disallow: */' . $podscache_path . '/*';
 	}
 
 	/**
@@ -49,6 +68,9 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 			if ( ! defined( 'FS_CHMOD_DIR' ) || ! $wp_filesystem->mkdir( PODS_ALT_FILE_CACHE_DIR, FS_CHMOD_DIR ) ) {
 				return false;
 			}
+
+			// Create the .htaccess file to protect the directory.
+			$wp_filesystem->put_contents( PODS_ALT_FILE_CACHE_DIR . DIRECTORY_SEPARATOR . '.htaccess', $wp_filesystem->get_contents( PODS_ALT_CACHE_DIR . 'assets/.htaccess' ), FS_CHMOD_FILE );
 		}
 
 		return true;
@@ -86,6 +108,9 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 		// Delete all files in directory
 		$this->delete_files_in_directory( PODS_ALT_FILE_CACHE_DIR );
 
+		// Create the .htaccess file to protect the directory.
+		$wp_filesystem->put_contents( PODS_ALT_FILE_CACHE_DIR . DIRECTORY_SEPARATOR . '.htaccess', $wp_filesystem->get_contents( PODS_ALT_CACHE_DIR . 'assets/.htaccess' ), FS_CHMOD_FILE );
+
 		pods_alternative_cache_log_message( 'Files deleted in Pods cache dir', __METHOD__, [
 			'PODS_ALT_FILE_CACHE_DIR' => PODS_ALT_FILE_CACHE_DIR,
 		] );
@@ -102,6 +127,9 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 		if ( null === $directory ) {
 			$directory = PODS_ALT_FILE_CACHE_DIR;
 		}
+
+		// Remove the trailing slash.
+		$directory = untrailingslashit( $directory );
 
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 
@@ -284,6 +312,9 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 		if ( false !== strpos( $path_dir, '.php' ) ) {
 			$path_dir = dirname( $path_dir );
 		}
+
+		// Remove the trailing slash.
+		$path_dir = untrailingslashit( $path_dir );
 
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 
