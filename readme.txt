@@ -5,7 +5,7 @@ Tags: pods, cache, wpengine
 Requires at least: 3.8
 Tested up to: 6.1
 Requires PHP: 5.6
-Stable tag: 2.1.4
+Stable tag: 2.1.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -76,9 +76,10 @@ Disable object cache fallback, when File writes fail:
 
 == Changelog ==
 
-= 2.1.4 - September 30th, 2022 =
+= 2.1.5 - September 30th, 2022 =
 
 * Fixed: Resolved the PHP warning when setting up the .htaccess file. (@sc0ttkclark)
+* 2.1.4 still had the issue so it was released
 
 = [2.1.3] March 1st, 2022 =
 * Fixed: Ensure that the podscache file directory is excluded from search engine indexing and deny direct browser access on Apache environments.
