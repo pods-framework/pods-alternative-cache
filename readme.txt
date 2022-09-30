@@ -3,9 +3,9 @@ Contributors: sc0ttkclark
 Donate link: https://friends.pods.io/
 Tags: pods, cache, wpengine
 Requires at least: 3.8
-Tested up to: 5.9
+Tested up to: 6.1
 Requires PHP: 5.6
-Stable tag: 2.1.3
+Stable tag: 2.1.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -75,6 +75,10 @@ Disable object cache fallback, when File writes fail:
 `define( 'PODS_ALT_CACHE_FALLBACK', false ); // Default is true`
 
 == Changelog ==
+
+= 2.1.4 - September 30th, 2022 =
+
+* Fixed: Resolved the PHP warning when setting up the .htaccess file. (@sc0ttkclark)
 
 = [2.1.3] March 1st, 2022 =
 * Fixed: Ensure that the podscache file directory is excluded from search engine indexing and deny direct browser access on Apache environments.
