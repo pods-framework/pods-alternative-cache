@@ -22,7 +22,6 @@
 *.RTF	 diff=astextplain
 
 # Ignore
-/assets export-ignore
 /tests export-ignore
 composer.json export-ignore
 package.json export-ignore
