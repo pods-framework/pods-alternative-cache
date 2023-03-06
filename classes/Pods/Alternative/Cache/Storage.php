@@ -70,6 +70,10 @@ class Pods_Alternative_Cache_Storage {
 			return $return;
 		}
 
+		if ( is_bool( $cache_key ) || empty( $cache_key ) ) {
+			return $return;
+		}
+
 		$return = wp_cache_set( $cache_key, $cache_value, $group, $expires );
 
 		if ( $return ) {
