@@ -78,7 +78,7 @@ Disable object cache fallback, when File writes fail:
 
 = 2.1.6 - March 6th, 2023 =
 
-* Fixed: Prevent issue that sometimes happens with persistent object cache fallback when clearing cache for a group.
+* Fixed: Prevent issue that sometimes happens with persistent object cache fallback when clearing cache for a group. (@sc0ttkclark)
 
 = 2.1.5 - September 30th, 2022 =
 
