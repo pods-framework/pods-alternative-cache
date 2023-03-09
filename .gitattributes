@@ -30,3 +30,4 @@ phpunit.xml.dist export-ignore
 CONTRIBUTING.md export-ignore
 /.github export-ignore
 /.wordpress-org export-ignore
+.distignore export-ignore
