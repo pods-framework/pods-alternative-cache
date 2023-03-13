@@ -160,6 +160,11 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 		foreach ( $file_list as $file ) {
 			$file_path = $directory . DIRECTORY_SEPARATOR . $file['name'];
 
+			// Check if this file still exists.
+			if ( ! $wp_filesystem->exists( $file_path ) ) {
+				continue;
+			}
+
 			// d = folder, f = file
 			if ( 'd' === $file['type'] ) {
 				// Delete folder.
@@ -168,14 +173,19 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 				// Delete file.
 				$wp_filesystem->delete( $file_path );
 			}
+		}
 
-			if ( PODS_ALT_FILE_CACHE_DIR !== $directory ) {
-				$wp_filesystem->rmdir( $directory );
-
-				pods_alternative_cache_log_message( 'Directory removed', __METHOD__, [
-					'$directory' => $directory,
-				] );
+		if ( PODS_ALT_FILE_CACHE_DIR !== $directory ) {
+			// Check if this directory still exists.
+			if ( ! $wp_filesystem->exists( $directory ) ) {
+				return;
 			}
+
+			$wp_filesystem->rmdir( $directory );
+
+			pods_alternative_cache_log_message( 'Directory removed', __METHOD__, [
+				'$directory' => $directory,
+			] );
 		}
 	}
 
@@ -341,7 +351,7 @@ class Pods_Alternative_Cache_File extends Pods_Alternative_Cache_Storage {
 				foreach ( $directories as $directory ) {
 					$dir_path .= DIRECTORY_SEPARATOR . $directory;
 
-					if ( $wp_filesystem->is_dir( $dir_path ) ) {
+					if ( $wp_filesystem->is_dir( $dir_path ) || $wp_filesystem->exists( $dir_path ) ) {
 						continue;
 					}
 

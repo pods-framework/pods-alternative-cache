@@ -5,7 +5,7 @@ Tags: pods, cache, wpengine
 Requires at least: 3.8
 Tested up to: 6.2
 Requires PHP: 5.6
-Stable tag: 2.1.6
+Stable tag: 2.1.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -75,6 +75,10 @@ Disable object cache fallback, when File writes fail:
 `define( 'PODS_ALT_CACHE_FALLBACK', false ); // Default is true`
 
 == Changelog ==
+
+= 2.1.7 - March 13th, 2023 =
+
+* Fixed: Caught a bug hanging around for a few years that only happened in edge cases -- checking if file/directory still exists before trying to delete/remove it. (@sc0ttkclark)
 
 = 2.1.6 - March 6th, 2023 =
 
