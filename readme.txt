@@ -2,10 +2,10 @@
 Contributors: sc0ttkclark
 Donate link: https://friends.pods.io/
 Tags: pods, cache, wpengine
-Requires at least: 3.8
+Requires at least: 6.0
 Tested up to: 6.5
-Requires PHP: 5.6
-Stable tag: 2.1.8
+Requires PHP: 7.2
+Stable tag: 2.2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -42,7 +42,7 @@ Check out our GitHub for a list of contributors, or search our GitHub issues to 
 
 = Why an Alternative Cache? =
 
-Hosts like WPEngine have limits set on their object caching engine that are based on what they find optimal for their environment. Sometimes, plugins, themes, and even WordPress core can utilize object cache to the point where it gets too full. When that happens, certain caching engines like APC can remove objects from their cache and that can cause what appears to be random numbers of queries on each page load.
+Hosts like WPEngine and GoDaddy have limits set on their object caching engine that are based on what they find optimal for their environment. Sometimes, plugins, themes, and even WordPress core can utilize object cache to the point where it gets too full. When that happens, certain caching engines like APC can remove objects from their cache and that can cause what appears to be random numbers of queries on each page load.
 
 What Pods Alternative Cache does is store all of the Pods objects that need caching, separate from the default object caching engine. Depending on the environment or site, this may still not be optimal. You'll want to test things out and keep an eye on your site's performance to see if it's the right fit for you.
 
@@ -75,6 +75,10 @@ Disable object cache fallback, when File writes fail:
 `define( 'PODS_ALT_CACHE_FALLBACK', false ); // Default is true`
 
 == Changelog ==
+
+= 2.2.0 - March 24th, 2024 =
+
+* New requirements that match Pods: WP 6.0+, PHP 7.2+, and Pods 3.0+ (@sc0ttkclark)
 
 = 2.1.8 - March 24th, 2024 =
 

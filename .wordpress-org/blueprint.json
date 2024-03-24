@@ -32,6 +32,13 @@
       }
     },
     {
+      "step": "installTheme",
+      "themeZipFile": {
+        "resource": "wordpress.org\/themes",
+        "slug": "raft"
+      }
+    },
+    {
       "step": "login",
       "username": "admin",
       "password": "password"
