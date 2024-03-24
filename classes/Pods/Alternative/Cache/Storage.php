@@ -47,7 +47,7 @@ class Pods_Alternative_Cache_Storage {
 	 * @return mixed|null
 	 */
 	public function get_value( $cache_key, $group ) {
-		return $this->fallback_set( null, $cache_key, $group );
+		return $this->fallback_set( null, $cache_key, null, $group );
 	}
 
 	/**
@@ -95,8 +95,8 @@ class Pods_Alternative_Cache_Storage {
 	 *
 	 * @return bool
 	 */
-	public function set_value( $cache_key, $value, $expires, $group ) {
-		return $this->fallback_set( false, $cache_key, $value, $group, $expires );
+	public function set_value( $cache_key, $cache_value, $expires, $group ) {
+		return $this->fallback_set( false, $cache_key, $cache_value, $group, $expires );
 	}
 
 	/**

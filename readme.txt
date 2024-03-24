@@ -3,9 +3,9 @@ Contributors: sc0ttkclark
 Donate link: https://friends.pods.io/
 Tags: pods, cache, wpengine
 Requires at least: 3.8
-Tested up to: 6.2
+Tested up to: 6.5
 Requires PHP: 5.6
-Stable tag: 2.1.7
+Stable tag: 2.1.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -75,6 +75,12 @@ Disable object cache fallback, when File writes fail:
 `define( 'PODS_ALT_CACHE_FALLBACK', false ); // Default is true`
 
 == Changelog ==
+
+= 2.1.8 - March 24th, 2024 =
+
+* Fixed: Resolved a PHP notices with the storage set method. (@sc0ttkclark)
+* Fixed: Resolved an issue which was causing the cache group not be utilized properly when setting the fallback value. (@sc0ttkclark)
+* Fixed: Tested on WP 6.5 and PHP 7.2+. (@sc0ttkclark)
 
 = 2.1.7 - March 13th, 2023 =
 
