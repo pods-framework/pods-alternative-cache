@@ -7,6 +7,9 @@ Description: Alternative caching engine for Pods for large sites on hosts with h
 Version: 2.2.1
 Author: Pods Framework Team
 Author URI: https://pods.io/
+GitHub Plugin URI: https://github.com/pods-framework/pods-alternative-cache
+Primary Branch:    main
+Plugin ID:         did:plc:e3rm6t7cspgpzaf47kn3nnsl
 */
 
 define( 'PODS_ALT_CACHE_VERSION', '2.2.1' );
