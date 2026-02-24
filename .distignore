@@ -18,6 +18,7 @@
 # Dot-files
 .babelrc
 .distignore
+.DS_Store
 .editorconfig
 .env
 .env.example
@@ -28,6 +29,8 @@
 .gitignore
 .jshintrc
 .nvmrc
+.phpcs.compat.xml
+.phpcs.xml
 .phpstorm.meta.php
 .scrutinizer.yml
 .travis.yml
@@ -40,18 +43,21 @@ codeception.example.yml
 codeception.slic.yml
 CODEOWNERS
 composer.json
+composer.lock
 CONTRIBUTING.md
 Gruntfile.js
-jest-setup-wordpress-globals.js
 jest.config.json
 jest.config.js
-package-lock.json
+jest-setup-wordpress-globals.js
 package.json
+package-lock.json
 phpcs.xml
 phpcs.xml.dist
+phpstan.neon
 phpunit.xml.dist
 README.md
 rollup.config.js
+slic.json
 TESTS.md
 webpack.common.js
 webpack.dev.js

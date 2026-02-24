@@ -1,5 +1,10 @@
 <?php
 
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
 /**
  * Class Pods_Alternative_Cache_DB
  */
@@ -60,7 +65,7 @@ class Pods_Alternative_Cache_DB extends Pods_Alternative_Cache_Storage {
 
 		$table = $this->table();
 
-		$wpdb->query( "DROP TABLE IF EXISTS `{$table}`" );
+		$wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $table ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange
 	}
 
 	/**
@@ -77,14 +82,19 @@ class Pods_Alternative_Cache_DB extends Pods_Alternative_Cache_Storage {
 
 		$table = $this->table();
 
-		$sql = "
-			SELECT `cache_value`, `expiration`
-			FROM `{$table}`
-			WHERE `cache_key` = %s AND `cache_group` = %s
-			LIMIT 1
-		";
-
-		$cache = $wpdb->get_row( $wpdb->prepare( $sql, $cache_key, $group ) );
+		$cache = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->prepare(
+				'
+					SELECT `cache_value`, `expiration`
+					FROM %i
+					WHERE `cache_key` = %s AND `cache_group` = %s
+					LIMIT 1
+				',
+				$table,
+				$cache_key,
+				$group
+			)
+		);
 
 		$cache_value = null;
 
@@ -138,12 +148,17 @@ class Pods_Alternative_Cache_DB extends Pods_Alternative_Cache_Storage {
 				return $this->clear();
 			}
 
-			$sql = "
-				DELETE FROM `{$table}`
-				WHERE `cache_key` = %s AND `cache_group` = %s
-			";
-
-			$wpdb->query( $wpdb->prepare( $sql, $cache_key, $group ) );
+			$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->prepare(
+					'
+						DELETE FROM %i
+						WHERE `cache_key` = %s AND `cache_group` = %s
+					',
+					$table,
+					$cache_key,
+					$group
+				)
+			);
 		} else {
 			$cache_value = maybe_serialize( $cache_value );
 
@@ -153,13 +168,20 @@ class Pods_Alternative_Cache_DB extends Pods_Alternative_Cache_Storage {
 				$expires_at = time() + (int) $expires;
 			}
 
-			$sql = "
-				REPLACE INTO `{$table}`
-				( `cache_key`, `cache_group`, `cache_value`, `expiration` )
-				VALUES ( %s, %s, %s, %d )
-			";
-
-			$wpdb->query( $wpdb->prepare( $sql, $cache_key, $group, $cache_value, $expires_at ) );
+			$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->prepare(
+					'
+						REPLACE INTO %i
+						( `cache_key`, `cache_group`, `cache_value`, `expiration` )
+						VALUES ( %s, %s, %s, %d )
+					',
+					$table,
+					$cache_key,
+					$group,
+					$cache_value,
+					$expires_at
+				)
+			);
 		}
 
 		return true;
@@ -176,7 +198,7 @@ class Pods_Alternative_Cache_DB extends Pods_Alternative_Cache_Storage {
 
 		$table = $this->table();
 
-		$wpdb->query( "TRUNCATE `{$table}`" );
+		$wpdb->query( $wpdb->prepare( 'TRUNCATE %i', $table ) );
 
 		return true;
 	}

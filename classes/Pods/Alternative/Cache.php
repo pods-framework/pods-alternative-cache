@@ -1,5 +1,10 @@
 <?php
 
+// Don't load directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	die( '-1' );
+}
+
 /**
  * Class Pods_Alternative_Cache
  */
@@ -113,7 +118,7 @@ class Pods_Alternative_Cache {
 	 */
 	public function has_value( $_false, $cache_mode, $cache_key, $original_key, $group ) {
 		if ( ! $_false && $this->is_enabled( $cache_mode, $cache_key ) ) {
-			if ( current_user_can( 'manage_options' ) && isset( $_GET['pods_debug_cache'] ) && ( '1' === $_GET['pods_debug_cache'] || $cache_mode === $_GET['pods_debug_cache'] ) ) {
+			if ( ( $cache_mode === pods_v( 'pods_debug_cache' ) || '1' === pods_v( 'pods_debug_cache' ) ) && current_user_can( 'manage_options' ) ) {
 				$_false = true;
 			} else {
 				$value = $this->storage->get_value( $cache_key, $group );
@@ -170,7 +175,7 @@ class Pods_Alternative_Cache {
 	 */
 	public function get_value( $value, $cache_mode, $cache_key, $original_key, $group ) {
 		if ( $this->is_enabled( $cache_mode, $cache_key ) ) {
-			if ( current_user_can( 'manage_options' ) && isset( $_GET['pods_debug_cache'] ) && ( '1' === $_GET['pods_debug_cache'] || $cache_mode === $_GET['pods_debug_cache'] ) ) {
+			if ( ( $cache_mode === pods_v( 'pods_debug_cache' ) || '1' === pods_v( 'pods_debug_cache' ) ) && current_user_can( 'manage_options' ) ) {
 				$value = null;
 			} elseif ( $this->last_key === $cache_key ) {
 				$value = $this->last;

@@ -2,10 +2,10 @@
 Contributors: sc0ttkclark
 Donate link: https://friends.pods.io/
 Tags: pods, cache, wpengine
-Requires at least: 6.0
-Tested up to: 6.8
+Requires at least: 6.3
+Tested up to: 7.0
 Requires PHP: 7.2
-Stable tag: 2.2.1
+Stable tag: 2.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -75,6 +75,12 @@ Disable object cache fallback, when File writes fail:
 `define( 'PODS_ALT_CACHE_FALLBACK', false ); // Default is true`
 
 == Changelog ==
+
+= 2.3 - February 24th, 2026 =
+
+* New minimum requirement: WordPress 6.3+
+* Fixed: Tested on WP 7.0 (@sc0ttkclark)
+* Fixed: Resolved Plugin Checker issues across codebase. (@sc0ttkclark)
 
 = 2.2.1 - March 30th, 2025 =
 
