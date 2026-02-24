@@ -1,6 +1,6 @@
 <?php
 /**
- * Pods - Custom Content Types and Fields
+ * Pods Alternative Cache
  *
  * @package   Pods_Alternative_Cache
  * @author    Pods Framework Team
@@ -419,7 +419,6 @@ function pods_alternative_cache_test_anon() {
 }
 
 add_action( 'init', 'pods_alternative_cache_test_anon' );
-
 
 add_filter( 'wp_plugin_check_ignore_files', static function ( $ignored_files ) {
 	$pods_dev_files = [
