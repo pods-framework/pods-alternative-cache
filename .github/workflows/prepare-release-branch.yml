@@ -1,11 +1,11 @@
 name: Prepare Release Branch
 env:
-  PR_PREFIX: 'Pods Gravity Forms '
+  PR_PREFIX: 'Pods Alternative Cache '
   PR_LABELS: 'Type: Release'
-  MILESTONE_PREFIX: 'Pods Gravity Forms '
+  MILESTONE_PREFIX: 'Pods Alternative Cache '
   BRANCH_PREFIX: 'release/'
-  WPORG_PLUGIN_FILE: 'pods-gravity-forms.php'
-  WPORG_PLUGIN_VERSION_CONSTANT_NAME: 'PODS_GF_VERSION'
+  WPORG_PLUGIN_FILE: 'pods-alternative-cache.php'
+  WPORG_PLUGIN_VERSION_CONSTANT_NAME: 'PODS_ALT_CACHE_VERSION'
 on:
   workflow_dispatch:
     inputs:
