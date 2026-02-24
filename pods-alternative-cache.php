@@ -92,6 +92,7 @@ add_action( 'plugins_loaded', 'pods_alternative_cache_init', 5 );
  * @return bool
  */
 function pods_alternative_cache_is_debug_enabled() {
+	// @phpstan-ignore-next-line
 	return defined( 'PODS_ALT_CACHE_DEBUG' ) && PODS_ALT_CACHE_DEBUG && 1 === (int) pods_v( 'altcache_debug' );
 }
 
@@ -161,7 +162,9 @@ function pods_alternative_cache_test_anon() {
 		return;
 	}
 
+	// @phpstan-ignore-next-line
 	if ( 1 === (int) pods_v( 'altcache_debug_clear' ) ) {
+		// @phpstan-ignore-next-line
 		pods_api()->cache_flush_pods();
 
 		pods_alternative_cache_log_message( 'Flushed cache', __FUNCTION__ );
@@ -180,7 +183,9 @@ function pods_alternative_cache_test_anon() {
 
 	$persist_check = '';
 
+	// @phpstan-ignore-next-line
 	if ( null !== pods_v( 'altcache_debug_check' ) ) {
+		// @phpstan-ignore-next-line
 		$persist_check = sanitize_text_field( pods_v( 'altcache_debug_check' ) );
 	}
 
@@ -299,21 +304,27 @@ function pods_alternative_cache_test_anon() {
 			}
 
 			if ( 'pods-alt-cache' === $cache_type ) {
+				// @phpstan-ignore-next-line
 				$before_set = pods_cache_get( $key, $cache_group );
 
 				if ( $value ) {
+					// @phpstan-ignore-next-line
 					$set = pods_cache_set( $key, $value, $cache_group, $expiration );
 				}
 			} elseif ( 'pods-alt-cache-transient' === $cache_type ) {
+				// @phpstan-ignore-next-line
 				$before_set = pods_transient_get( $key );
 
 				if ( $value ) {
+					// @phpstan-ignore-next-line
 					$set = pods_transient_set( $key, $value, $expiration );
 				}
 			} elseif ( 'pods-alt-cache-option' === $cache_type ) {
+				// @phpstan-ignore-next-line
 				$before_set = pods_option_cache_get( $key, $cache_group );
 
 				if ( $value ) {
+					// @phpstan-ignore-next-line
 					$set = pods_option_cache_set( $key, $value, $expiration, $cache_group );
 				}
 			} elseif ( 'wp-object-cache' === $cache_type ) {
@@ -356,10 +367,13 @@ function pods_alternative_cache_test_anon() {
 			sleep( 1 );
 
 			if ( 'pods-alt-cache' === $cache_type ) {
+				// @phpstan-ignore-next-line
 				$after_set = pods_cache_get( $key, $cache_group );
 			} elseif ( 'pods-alt-cache-transient' === $cache_type ) {
+				// @phpstan-ignore-next-line
 				$after_set = pods_transient_get( $key );
 			} elseif ( 'pods-alt-cache-option' === $cache_type ) {
+				// @phpstan-ignore-next-line
 				$after_set = pods_option_cache_get( $key, $cache_group );
 			} elseif ( 'wp-object-cache' === $cache_type ) {
 				$after_set = wp_cache_get( $key, $cache_group );
