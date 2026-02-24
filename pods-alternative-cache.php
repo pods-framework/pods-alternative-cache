@@ -11,7 +11,7 @@
  * Plugin URI:        https://pods.io/2014/04/16/introducing-pods-alternative-cache/
  * Requires Plugins:  pods
  * Description:       Alternative caching engine for Pods for large sites on hosts with hard limits on how much you can store in the object cache
- * Version:           2.2.2
+ * Version:           2.3.0-a-1
  * Author:            Pods Framework Team
  * Author URI:        https://pods.io/about/
  * Text Domain:       pods-alternative-cache
@@ -44,7 +44,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	die( '-1' );
 }
 
-define( 'PODS_ALT_CACHE_VERSION', '2.2.2' );
+define( 'PODS_ALT_CACHE_VERSION', '2.3.0-a-1' );
 define( 'PODS_ALT_CACHE_DIR', plugin_dir_path( __FILE__ ) );
 
 /**
